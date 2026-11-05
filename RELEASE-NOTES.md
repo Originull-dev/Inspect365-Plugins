@@ -1,4 +1,4 @@
-# Changelog
+# Release notes
 
 All three plugins share a version number, and every release carries all three.
 

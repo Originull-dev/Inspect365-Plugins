@@ -23,7 +23,7 @@ Each plugin carries the same two parts, packaged for its app:
 
 The reports skill is the same in all three folders. Each folder's README covers what that package contains and how to install it.
 
-`.claude-plugin/marketplace.json` lists the Claude plugin and `.agents/plugins/marketplace.json` lists the ChatGPT plugin, so Claude Code and Codex can add this repository as a plugin source. [CHANGELOG.md](CHANGELOG.md) lists the changes in each version.
+`.claude-plugin/marketplace.json` lists the Claude plugin and `.agents/plugins/marketplace.json` lists the ChatGPT plugin, so Claude, Claude Code and Codex can add this repository as a plugin source. [RELEASE-NOTES.md](RELEASE-NOTES.md) lists the changes in each version.
 
 ## Download
 

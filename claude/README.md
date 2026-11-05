@@ -16,13 +16,12 @@ Connects Claude to [Inspect 365](https://inspect365.app), so you can ask about t
 
 ## Install
 
-In the Claude apps:
+In claude.ai or the Claude desktop app, go to Customize > Plugins and add it one of two ways:
 
-1. Download [inspect365-claude.zip](https://github.com/Originull-dev/Inspect365-Plugins/releases/latest/download/inspect365-claude.zip).
-2. Go to Customize > Plugins > Add > Upload plugin and choose the zip.
-3. Open the plugin's Connectors tab, connect Inspect 365 and sign in.
+- Select Add > Add marketplace, enter `Originull-dev/Inspect365-Plugins` and add Inspect 365. Turn on Sync automatically for the marketplace to get new versions.
+- Download [inspect365-claude.zip](https://github.com/Originull-dev/Inspect365-Plugins/releases/latest/download/inspect365-claude.zip), select Add > Upload plugin and choose the zip.
 
-An organization Owner can add it for everyone instead: Organization settings > Plugins & skills > Add > Upload a plugin, then set its default access, and add the connector under Organization settings > Connectors.
+Then open the plugin's Connectors tab, connect Inspect 365 and sign in. On a Team or Enterprise plan, an Owner adds the connector for the organization first. The reports need Code execution and file creation turned on, under Settings > Capabilities.
 
 In Claude Code, add this repository as a marketplace, install the plugin, then run `/mcp` and sign in to Inspect 365:
 
