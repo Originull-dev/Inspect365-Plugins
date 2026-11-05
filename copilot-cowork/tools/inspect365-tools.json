@@ -1,0 +1,559 @@
+{
+  "tools": [
+    {
+      "name": "list_entities",
+      "title": "List entities",
+      "description": "Lists Inspect 365 entity names accepted by query. Most are accepted by aggregate unless schema notes indicate otherwise. Use get_entity_schema to retrieve the full schema for a specific entity.",
+      "inputSchema": {
+        "properties": {},
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "List entities",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "get_entity_schema",
+      "title": "Get entity schema",
+      "description": "Returns the schema reference for a specified Inspect 365 entity: every field with its operator set, default and groupable fields, a section index, and sample filter and pagination examples. Field semantics are included at the richest detail that fits the response budget, reported as 'knowledgeDetail'; for large entities call again with 'section' set to a name from the returned 'sections' list to get complete semantics for that group of fields. Use list_entities to discover valid entity names, or search_fields to find fields by concept.",
+      "inputSchema": {
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required. The Inspect 365 entity name to retrieve the schema for. Use list_entities to discover valid values."
+          },
+          "section": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional. A section name from the 'sections' list of a previous get_entity_schema response for this entity. Restricts the response to that section's fields and returns their complete semantics. Omit to get the whole entity."
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "Get entity schema",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "get_filter_format",
+      "title": "Get filter format",
+      "description": "Returns the structured JSON filter format reference used by Inspect 365 query and aggregate tools, including supported operators, their semantics, scope rules, and examples.",
+      "inputSchema": {
+        "properties": {},
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "Get filter format",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "get_join_paths",
+      "title": "Get join paths",
+      "description": "Returns the approved cross-entity join paths for Inspect 365 entities, including strong, future-candidate, and unavailable joins with source and target fields, confidence levels, and conditions. Not every join is on the target's id, so match on each entry's toField. Entries whose toEntity is relationships follow the Collector's relationship edges in two steps: query the relationships entity, then the field the entry's note names with the returned ids.",
+      "inputSchema": {
+        "properties": {},
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "Get join paths",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "search_fields",
+      "title": "Search fields",
+      "description": "Finds Inspect 365 entity fields by concept or by name, and returns their complete semantics — description, units, and full enum-value explanations — even for entities whose get_entity_schema response omits them. Omit 'entity' to search every entity at once, which is the fastest way to discover which entity holds a concept such as disk encryption or credential expiry. Searching an exact field name returns that field first. When the query names Microsoft 365 data that Inspect 365 does not collect or does not serve, the response adds collectionGaps describing that data. Only the data a gap describes is unavailable -- every field in results is collected and usable -- and a gap is not evidence that the data is absent from the tenant.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required. Free-text concept or field name, for example 'disk encryption', 'credential expiry', or 'ownershipClassification'."
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional. Restrict results to a single Inspect 365 entity. Omit to search all entities. Use list_entities to discover valid values."
+          },
+          "maxResults": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional. Maximum number of fields to return. Defaults to 10 and cannot exceed 25."
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "Search fields",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "query",
+      "title": "Query records",
+      "description": "Queries tenant-scoped records for a selected Inspect 365 entity using curated fields and structured filters. Use list_entities to discover valid entities and get_entity_schema to see supported fields and filters for an entity.",
+      "inputSchema": {
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required. The Inspect 365 entity to query. Use list_entities to discover valid values."
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required. The customer tenant ID to query. Use list_available_tenants to see the tenants you can access."
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional list of approved fields for the selected entity. Omit to return the entity's default field set. Use get_entity_schema for supported field names."
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional string containing a JSON array of filter objects. Use get_entity_schema and get_filter_format for supported fields, operators, and filter syntax."
+          },
+          "maxResults": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "The maximum number of records to return per page. Defaults to 25 and cannot exceed 100."
+          },
+          "pageToken": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional continuation token from a previous query response for the same entity, fields, and filters."
+          }
+        },
+        "required": [
+          "entity",
+          "tenantId"
+        ],
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "Query records",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "inspect365": {
+          "mode": "query",
+          "entitiesTool": "list_entities",
+          "filterFormatTool": "get_filter_format"
+        },
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "aggregate",
+      "title": "Count records",
+      "description": "Returns filtered counts and grouped counts for a selected Inspect 365 entity. Use list_entities to discover valid entities and get_entity_schema to see supported group-by fields.",
+      "inputSchema": {
+        "properties": {
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required. The Inspect 365 entity to aggregate. Use list_entities to discover valid values."
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required. The customer tenant ID to query. Use list_available_tenants to see the tenants you can access."
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional string containing a JSON array of filter objects. Use get_entity_schema and get_filter_format for supported fields, operators, and filter syntax."
+          },
+          "groupBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional approved field name for the selected entity. Use get_entity_schema for supported group-by fields. Omit for a count-only response."
+          },
+          "maxBuckets": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional maximum number of grouped buckets to return. Defaults to 25 and cannot exceed 100."
+          }
+        },
+        "required": [
+          "entity",
+          "tenantId"
+        ],
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "Count records",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "inspect365": {
+          "mode": "aggregate",
+          "entitiesTool": "list_entities",
+          "filterFormatTool": "get_filter_format"
+        },
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "list_available_tenants",
+      "title": "List tenants",
+      "description": "Lists the customer tenants the authenticated caller can operate against. MSP callers receive each tenant whose meta_customer record names their tenant as its MSP, except customers whose status the Inspect 365 app hides (any status but active, trial or none), which cannot be queried either; other callers receive only their own meta_customer record.",
+      "inputSchema": {
+        "properties": {},
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "List tenants",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    },
+    {
+      "name": "list_finding_definitions",
+      "title": "List finding definitions",
+      "description": "Lists every registered finding definition from meta_findingDefinition. Definitions are global metadata and are the same for every tenant, so this tool does not take a tenantId. Use the returned id values as the 'findingId' filter value in query and aggregate when entity is 'findings'. With no arguments, returns a plain-text list with id, type, displayName, description and orderId per definition. Set detail to true for JSON that adds significanceShort, observationWindowDays (how many days a match is held in the hidden Detected status before it becomes a visible finding; null when there is no window) and showInactiveCategory (true when findings on inactive assets move to Stale). Pass findingId for one definition in full, adding significanceFull, remediation, microsoftGuidance, learnLinks and agentNotes.",
+      "inputSchema": {
+        "properties": {
+          "findingId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional finding definition id, as listed by this tool or stored in a finding's findingId. Returns that one definition in full as JSON. Takes precedence over detail."
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Optional. When true, returns every definition as JSON with its short significance, observation window and inactive-category flag. Omit for the plain-text list."
+          }
+        },
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "Generic wrapper for non-object return types.",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "x-fastmcp-wrap-result": true
+      },
+      "annotations": {
+        "title": "List finding definitions",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "_meta": {
+        "_fastmcp": {
+          "tags": []
+        }
+      }
+    }
+  ]
+}

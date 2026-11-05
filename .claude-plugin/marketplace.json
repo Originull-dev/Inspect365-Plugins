@@ -1,0 +1,14 @@
+{
+  "name": "inspect365",
+  "description": "Inspect 365 plugins for Claude",
+  "owner": {
+    "name": "Inspect 365"
+  },
+  "plugins": [
+    {
+      "name": "inspect365",
+      "source": "./claude",
+      "description": "Findings, users, devices and apps across the Microsoft 365 tenants you manage, from Inspect 365."
+    }
+  ]
+}

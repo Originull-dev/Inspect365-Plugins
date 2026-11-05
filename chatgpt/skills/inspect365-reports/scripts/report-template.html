@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>__TITLE__</title>
+<!--
+  Facts-only report page. Draws a sections document (hero, kpiStrip, panels, parthead, goodband,
+  sankey, footer) as light sheets: a gray-green page, tables on raised document cards with numbered sheet
+  tags, small uppercase mono labels. No vendor branding and no web fonts. Narrative section types
+  have no renderer here and show a visible notice instead.
+  The optional brand object belongs to whoever hands the report over: name, tagline, logo (data URI),
+  logoHeight, headerBackground, headerText, accent and footer. It styles the header, the separators
+  and the footer, never the data marks, which use a fixed palette checked for colorblind separation.
+  Text fields render as text and markup fields as HTML, in the same split as the dashboard renderer.
+-->
+<style>
+:root{
+  color-scheme:light;
+  --sheet:#E9EFED; --sheet-hi:#F4F8F7; --paper:#FFFFFF; --band-deep:#DCE5E2;
+  --rule:#C6D2CE; --row:#DCE5E2;
+  --ink:#0C1514; --mute:#4A5B57; --low:#6B7876;
+  --accent:#0C1514;
+  --series-1:#2a78d6;
+  --ord-1:#1c5cab; --ord-2:#5598e7; --ord-3:#86b6ef; --neutral-mark:#9BB0AA;
+  --cat-a:#2a78d6; --cat-b:#eb6834; --cat-c:#1baf7a; --cat-d:#eda100; --cat-e:#e87ba4; --cat-f:#4a3aa7;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--sheet);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+b,strong{font-weight:650}
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(16px,4vw,44px)}
+.legend{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.mono{font-family:var(--mono);font-size:.86em}
+.fig{font-family:var(--mono);font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+h1,h2{font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+
+/* brand slots */
+.brandbar{border-bottom:1px solid var(--rule)}
+.brandbar.filled{border-bottom:0}
+.brandbar .wrap{display:flex;align-items:center;gap:13px;min-height:62px;padding-top:13px;padding-bottom:13px}
+.brandbar img{display:block;height:auto;width:auto;max-width:240px;flex:none}
+.brandbar .bname{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;line-height:1.4}
+.brandbar .btag{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;line-height:1.4;opacity:.78;margin-top:2px}
+.brandrule{height:4px;background:var(--accent)}
+.has-accent .brandbar{border-bottom:0}
+
+/* bands */
+.band{padding:clamp(30px,5vw,52px) 0;border-bottom:1px solid var(--rule)}
+.sheet-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:8px;margin-bottom:14px}
+.sheet-head h2{font-size:clamp(19px,2.6vw,25px);line-height:1.1}
+.sheet-head .legend{margin-left:auto}
+@media (max-width:640px){.sheet-head .legend{flex-basis:100%;margin-left:0}}
+.sheet-sub{font-size:13.5px;color:var(--mute);max-width:80ch;margin-bottom:16px;text-wrap:pretty}
+.band.in-part{padding-top:clamp(22px,3.5vw,34px)}
+.part{background:var(--band-deep);border-bottom:1px solid var(--rule);padding:clamp(22px,3.4vw,32px) 0}
+.has-accent .part{box-shadow:inset 0 3px 0 var(--accent)}
+.part .legend{display:block;margin-bottom:6px}
+.part h2{font-size:clamp(18px,2.4vw,23px);line-height:1.15}
+.part p{color:var(--mute);font-size:13.5px;margin-top:7px;max-width:84ch;text-wrap:pretty}
+
+/* title block */
+.hero .split{display:grid;grid-template-columns:minmax(0,25rem) minmax(0,1fr);gap:clamp(24px,5vw,56px);align-items:start}
+.hero .split.solo{grid-template-columns:minmax(0,1fr)}
+@media (max-width:900px){.hero .split{grid-template-columns:minmax(0,1fr)}}
+.docline{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+.hero h1{font-size:clamp(28px,4.6vw,44px);line-height:1.02}
+.lede{margin-top:14px;font-size:14.5px;color:var(--mute);max-width:52ch;text-wrap:pretty}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border:1px solid var(--rule);border-radius:2px;background:var(--sheet-hi);color:var(--mute);white-space:nowrap}
+.sample{margin-left:12px;vertical-align:middle;font-size:8.5px;letter-spacing:.2em}
+
+/* raised document card: fields and tables */
+/* tables and the title band's scope box sit in the same white box as bar lists (2026-10-14) */
+.doc{background:var(--paper);border:1px solid var(--rule);border-radius:2px;overflow:hidden}
+.doc-head{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:12px 18px;border-bottom:1px solid var(--rule)}
+.doc-head .t{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.doc-body{padding:4px 16px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scope .scope-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+.scope .cell{padding:14px 18px 15px;border-right:1px solid var(--row);border-bottom:1px solid var(--row)}
+.scope .fig{font-size:30px;line-height:1;font-weight:600;font-variant-numeric:tabular-nums}
+.scope .legend{display:block;margin-top:9px;font-size:8.5px;letter-spacing:.16em}
+.scope .foot{font-size:11.5px;line-height:1.45;color:var(--mute);margin-top:4px}
+.hero .side{display:grid;gap:14px}
+.fieldlist .row{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;padding:10px 18px;border-bottom:1px solid var(--row);align-items:baseline}
+.fieldlist .row:last-child{border-bottom:0}
+.fieldlist .legend{font-size:8px;letter-spacing:.16em}
+.fieldlist .v{font-size:12.5px}
+@media (max-width:480px){.fieldlist .row{grid-template-columns:minmax(0,1fr);gap:2px}}
+
+/* tables */
+table{width:100%;border-collapse:collapse;color:var(--ink)}
+th{font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:.14em;line-height:1.5;text-transform:uppercase;color:var(--mute);text-align:left;vertical-align:bottom;padding:10px 12px 7px 0;border-bottom:1px solid var(--ink)}
+td{font-size:12.5px;line-height:1.5;padding:8px 12px 8px 0;border-bottom:1px solid var(--row);vertical-align:baseline}
+th:last-child,td:last-child{padding-right:0}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:500}
+th.n,td.n{text-align:right}
+td.n{font-family:var(--mono);font-size:11px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.date{white-space:nowrap;font-variant-numeric:tabular-nums}
+@media (hover:hover){tbody tr:hover td{background:rgba(12,21,20,.035)}}
+.code{font-family:var(--mono);font-size:10.5px;font-weight:400;background:var(--sheet);border:1px solid var(--rule);border-radius:1px;padding:2px 6px;overflow-wrap:break-word;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.sub{display:block;font-size:11px;font-weight:400;color:var(--mute);margin-top:2px}
+.tag{font-size:8px;padding:3px 7px}
+.cellhead{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 8px;max-width:100%}
+
+/* headline figures */
+.strip{display:flex;flex-wrap:wrap;background:var(--paper);border-top:1px solid var(--rule);border-left:1px solid var(--rule);border-radius:2px;overflow:hidden}
+.strip>div{flex:1 1 180px;min-width:0;padding:14px 16px 15px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.strip .legend{display:block;font-size:8.5px;letter-spacing:.16em;line-height:1.5;margin-bottom:8px}
+.strip .fig{font-size:23px;line-height:1}
+.strip .fig small{font-size:12px;font-weight:600;color:var(--low);margin-left:1px}
+.strip .foot{font-size:11.5px;line-height:1.45;color:var(--mute);margin-top:7px}
+.kpis{margin-top:clamp(20px,3vw,30px)}
+
+/* panels, bars and notes */
+.panels{display:grid;gap:20px 28px}
+.panels.c2{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+/* flow: each panel takes the next free space in the shorter column (see flow() below) */
+.panels.c2.flow{grid-auto-rows:4px;row-gap:0}
+.panels.c2.flow>.panel{margin-bottom:20px}
+@media (max-width:900px){.panels.c2{grid-template-columns:minmax(0,1fr)}
+  .panels.c2.flow{grid-auto-rows:auto;row-gap:20px}.panels.c2.flow>.panel{grid-row-end:auto!important;margin-bottom:0}}
+.panel{min-width:0}
+.panel>.legend{display:block;color:var(--ink);margin-bottom:9px}
+.lled{background:var(--paper);border:1px solid var(--rule);border-radius:2px}
+.led-row{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.5fr) 3.6em;gap:14px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--row)}
+.led-row:last-child{border-bottom:0}
+.led-row.nofig{grid-template-columns:minmax(0,1fr) minmax(0,1.9fr)}
+.led-row .l{font-size:12.5px;line-height:1.35;overflow-wrap:break-word;min-width:0}
+.led-row .fig{font-size:12px;text-align:right}
+.rail{height:8px;background:var(--sheet);border:1px solid var(--row);border-radius:1px;overflow:hidden;display:flex}
+.rail .fill{height:100%;background:var(--series-1);border-radius:0 1px 1px 0}
+.rail.stack{height:20px;border:0;background:none;border-radius:2px}
+.seg{height:100%;flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;box-shadow:inset -2px 0 0 var(--paper);background:var(--neutral-mark)}
+.seg:last-child{box-shadow:none}
+@media (max-width:560px){.led-row{grid-template-columns:minmax(0,1fr) 3.6em;row-gap:6px}.led-row .l{grid-column:1/-1}.led-row.nofig{grid-template-columns:minmax(0,1fr)}}
+.leg-row{display:flex;gap:8px 18px;flex-wrap:wrap;margin:0 0 10px}
+.leg-row span{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.leg-row i{width:10px;height:10px;border-radius:1px;flex:none}
+.note{margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--mute);max-width:90ch;text-wrap:pretty}
+
+/* app-to-data diagram: the build places every bar and line; the page draws them. The detail for a selection sticks to the
+   foot of the screen while the diagram is in view, so a click near the top of a tall diagram shows its permissions at once. */
+.sk-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.sk-chips button{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;line-height:1.4;padding:6px 10px;border:1px solid var(--rule);border-radius:2px;background:var(--sheet-hi);color:var(--mute);cursor:pointer}
+.sk-chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.sk-box{padding:16px 18px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sk-box svg{display:block;width:100%;min-width:760px;height:auto;-webkit-user-select:none;user-select:none}
+.sk-l{fill:none;stroke-opacity:.42}
+.sk-l.w{stroke:var(--series-1)}
+.sk-l.r{stroke:var(--neutral-mark)}
+.sk-n{fill:var(--ink)}
+.sk-t{font-family:var(--sans);font-size:11.5px;fill:var(--ink);cursor:pointer;outline:none}
+.sk-t .c{font-family:var(--mono);font-size:10px;fill:var(--mute)}
+.sk-t:focus-visible{text-decoration:underline}
+@media (hover:hover){.sk-t:hover{text-decoration:underline}}
+.sk-sel .sk-l{stroke-opacity:.06}
+.sk-sel .sk-l.on{stroke-opacity:.9}
+.sk-sel .sk-n{fill:var(--rule)}
+.sk-sel .sk-n.on{fill:var(--ink)}
+.sk-sel .sk-t{fill:var(--low)}
+.sk-sel .sk-t.on{fill:var(--ink);font-weight:650}
+.sk-detail{position:sticky;bottom:0;z-index:2;margin-top:14px;max-height:46vh;overflow:auto;background:var(--paper);border:1px solid var(--rule);border-radius:2px;box-shadow:0 -6px 18px rgba(12,21,20,.12);padding:12px 16px 4px}
+.sk-detail:empty{display:none}
+.sk-head{display:flex;align-items:baseline;gap:6px 14px;flex-wrap:wrap}
+.sk-head b{font-size:15px}
+.sk-head .sub{margin-top:0;flex:1 1 20ch}
+.sk-head button{margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border:1px solid var(--rule);border-radius:2px;background:var(--sheet-hi);color:var(--mute);cursor:pointer}
+
+/* footer */
+footer{padding:28px 0 54px}
+.has-accent footer{box-shadow:inset 0 3px 0 var(--accent)}
+.foot-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px 28px}
+.foot-fields .legend{display:block;font-size:8.5px;color:var(--low);margin-bottom:5px}
+.foot-fields p{font-size:12px;color:var(--mute);text-wrap:pretty}
+.closing{margin-top:24px;border-top:1px solid var(--rule);padding-top:16px}
+.closing .who{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.disclaimer{margin-top:10px;font-size:11.5px;color:var(--low);max-width:80ch}
+.brandfoot{margin-top:8px;font-size:11.5px;color:var(--mute);max-width:80ch}
+.unknown{border:1px dashed #b45309;background:#fff7ed;color:#7c2d12;border-radius:2px;padding:12px 14px;font-family:var(--mono);font-size:12px;margin:16px 0}
+
+@media print{
+  @page{size:Letter;margin:11mm}
+  body{font-size:12px}
+  .wrap{max-width:none;padding:0}
+  .band{padding:18px 0}
+  *{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .doc-body{overflow:visible}
+  thead{display:table-header-group}
+  tr,.led-row,.strip>div,.fieldlist .row{break-inside:avoid}
+  .sheet-head,.doc-head,.part,.panel>.legend{break-after:avoid}
+  tbody tr:hover td{background:none}
+  .sk-chips,.sk-detail{display:none}
+  .sk-box{overflow:visible;padding:8px}
+  .sk-box svg{min-width:0;width:auto;max-width:100%;max-height:245mm;margin:0 auto}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="application/json" id="report-data">
+__DATA__
+</script>
+
+<script>
+(function () {
+  "use strict";
+  function el(tag, attrs, children) {
+    var n = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (attrs[k] == null) continue;
+      if (k === "html") n.innerHTML = attrs[k];
+      else if (k === "text") n.textContent = attrs[k];
+      else n.setAttribute(k, attrs[k]);
+    }
+    (children || []).forEach(function (c) { if (c == null) return; n.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function has(v) { return v != null && v !== "" && !(Array.isArray(v) && v.length === 0); }
+  function txt(v) { return v == null ? "" : String(v); }
+  function legend(t) { return el("span", { class: "legend", text: t }); }
+
+  /* brand values are checked here as well as in render_report.py */
+  var HEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+  var LOGO = /^data:image\/(?:png|jpeg|gif|webp|svg\+xml);base64,[A-Za-z0-9+\/=]+$/;
+  var DATE = /^\d{4}-\d{2}-\d{2}$/;
+  function rgbOf(hex) {
+    var h = hex.slice(1);
+    if (h.length === 3) h = h.replace(/./g, function (c) { return c + c; });
+    return [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16); });
+  }
+  function lum(rgb) {
+    var c = rgb.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  /* white or near-black, whichever has more contrast on the given color */
+  function inkOn(rgb) { var L = lum(rgb); return 1.05 / (L + 0.05) >= (L + 0.05) / 0.0538 ? "#ffffff" : "#0C1514"; }
+
+  function brandBar(b) {
+    var name = txt(b.name).trim(), logo = (typeof b.logo === "string" && LOGO.test(b.logo)) ? b.logo : null;
+    if (!name && !logo) return null;
+    var bg = HEX.test(b.headerBackground || "") ? b.headerBackground : null;
+    var ink = b.headerText === "light" ? "#ffffff" : b.headerText === "dark" ? "#0C1514" : (bg ? inkOn(rgbOf(bg)) : null);
+    var h = (typeof b.logoHeight === "number" && b.logoHeight >= 16 && b.logoHeight <= 96) ? b.logoHeight : 36;
+    return el("header", { class: "brandbar" + (bg ? " filled" : ""), style: (bg ? "background:" + bg + ";" : "") + (ink ? "color:" + ink : "") || null }, [
+      el("div", { class: "wrap" }, [
+        logo ? el("img", { src: logo, alt: name || "Logo", style: "max-height:" + h + "px" }) : null,
+        (name || has(b.tagline)) ? el("div", {}, [
+          name ? el("div", { class: "bname", text: name }) : null,
+          has(b.tagline) ? el("div", { class: "btag", text: txt(b.tagline) }) : null
+        ]) : null
+      ])
+    ]);
+  }
+
+  /* A table in a white box; its panel legend titles it from above, as for bar lists. */
+  function docCard(body) {
+    return el("div", { class: "doc" }, [ body ]);
+  }
+  function table(cols, rows) {
+    var head = el("thead", {}, [ el("tr", {}, cols.map(function (c) { return el("th", { class: c.n ? "n" : null, scope: "col", text: c.label }); })) ]);
+    var body = el("tbody", {}, rows.map(function (r) {
+      return el("tr", {}, cols.map(function (c) {
+        var v = r[c.key], cls = c.n ? "n" : null;
+        if (v == null) return el("td", { class: cls });
+        if (typeof v === "object") {
+          var k = [], badges = [];
+          if (has(v.mono)) k.push(el("span", { class: "code", text: txt(v.mono) }));
+          if (has(v.text)) k.push((has(v.mono) ? " " : "") + txt(v.text));
+          if (has(v.html)) k.push(el("span", { html: v.html }));
+          if (v.pill && has(v.pill.label)) badges.push(el("span", { class: "chip tag", text: txt(v.pill.label) }));
+          if (has(v.status)) badges.push(el("span", { class: "chip tag", text: txt(v.status) }));
+          /* A name and its badges share one centre line with a fixed gap, and wrap flush left (2026-10-14). */
+          if (badges.length) k = k.length ? [ el("span", { class: "cellhead" }, k.concat(badges)) ] : badges;
+          if (has(v.sub)) k.push(el("span", { class: "sub", text: txt(v.sub) }));
+          return el("td", { class: cls }, k);
+        }
+        return el("td", { class: cls || (DATE.test(v) ? "date" : null), html: String(v) });
+      }));
+    }));
+    return el("div", { class: "doc-body" }, [ el("table", {}, [ head, body ]) ]);
+  }
+  function ledger(list) {
+    return el("div", { class: "lled" }, list.map(function (b) {
+      var stacked = has(b.segments), rail = el("div", { class: "rail" + (stacked ? " stack" : "") });
+      if (stacked) {
+        b.segments.forEach(function (s) {
+          var w = Number(s.pct) || 0, show = s.v != null && w >= 6;
+          rail.appendChild(el("span", {
+            class: "seg", style: "width:" + w + "%" + (s.color ? ";background:" + s.color : ""),
+            title: (has(s.name) ? s.name + ": " : "") + txt(s.v), "data-v": show ? txt(s.v) : null
+          }, show ? [ txt(s.v) ] : null));
+        });
+      } else if (b.pct != null) {
+        rail.appendChild(el("span", { class: "fill", style: "width:" + Math.max(0, Math.min(100, Number(b.pct) || 0)) + "%" + (b.color ? ";background:" + b.color : "") }));
+      }
+      var label = el("span", { class: "l", html: b.label || "" });
+      var fig = b.value != null ? el("span", { class: "fig", html: String(b.value) }) : null;
+      var row = el("div", { class: "led-row" + (fig ? "" : " nofig") }, [ label, rail, fig ]);
+      row.setAttribute("title", label.textContent + (fig ? ": " + fig.textContent : ""));
+      return row;
+    }));
+  }
+  function legendRow(items) {
+    return el("div", { class: "leg-row" }, items.map(function (it) {
+      return el("span", {}, [ el("i", { style: "background:" + (it.color || "var(--neutral-mark)") }), txt(it.label) ]);
+    }));
+  }
+  /* A band right after a part divider with the same kicker reads as part of it. */
+  function band(s, kids, inPart) {
+    return el("section", { class: "band" + (inPart ? " in-part" : ""), id: s.id || null }, [ el("div", { class: "wrap" }, [
+      el("div", { class: "sheet-head" }, [
+        el("h2", { text: s.title || s.kicker || "" }),
+        (!inPart && has(s.title) && has(s.kicker)) ? legend(s.kicker) : null
+      ]),
+      has(s.sub) ? el("p", { class: "sheet-sub", html: s.sub }) : null
+    ].concat(kids)) ]);
+  }
+  function strip(cells) { return el("div", { class: "strip" }, cells); }
+
+  var SECTIONS = {
+    hero: function (s, d) {
+      var h1 = el("h1", { text: s.h1 || d.tenantName || "" });
+      if (d.sample) h1.appendChild(el("span", { class: "chip sample", text: "Sample" }));
+      var copy = el("div", {}, [
+        has(s.eyebrow) ? el("div", { class: "docline", text: s.eyebrow }) : null,
+        h1,
+        has(s.meta) ? el("p", { class: "lede", text: s.meta }) : null,
+        has(s.chips) ? el("div", { class: "chips" }, s.chips.map(function (c) { return el("span", { class: "chip", text: typeof c === "object" ? txt(c.label) : txt(c) }); })) : null
+      ]);
+      var fields = has(s.fields) ? el("div", { class: "doc fieldlist" }, s.fields.map(function (f) {
+        return el("div", { class: "row" }, [ legend(f.h), el("span", { class: "v", html: f.body }) ]);
+      })) : null;
+      /* What the report covers: the working set as large figures beside the title. */
+      var scope = has(s.scope) ? el("div", { class: "doc scope" }, [
+        el("div", { class: "doc-head" }, [ el("span", { class: "t", text: s.scopeTitle || "In this report" }) ]),
+        el("div", { class: "scope-grid" }, s.scope.map(function (f) {
+          return el("div", { class: "cell" }, [ el("div", { class: "fig", text: txt(f.value) }), legend(f.label),
+            has(f.sub) ? el("div", { class: "foot", text: f.sub }) : null ]);
+        }))
+      ]) : null;
+      var side = (fields && scope) ? el("div", { class: "side" }, [ scope, fields ]) : (scope || fields);
+      return el("section", { class: "band hero" }, [ el("div", { class: "wrap" }, [
+        el("div", { class: "split" + (side ? "" : " solo") }, [ copy, side ])
+      ]) ]);
+    },
+    /* The headline figures sit at the foot of the title band when one precedes them. */
+    kpiStrip: function (s, d, inPart, prev) {
+      var cards = (s.cards || []).filter(function (c) { return c && c.value != null; });
+      if (!cards.length) return null;
+      var box = el("div", { class: "kpis" }, [ strip(cards.map(function (c) {
+        return el("div", {}, [
+          legend(c.kicker),
+          el("div", { class: "fig", html: String(c.value) + (c.unit ? "<small>" + c.unit + "</small>" : "") }),
+          has(c.foot) ? el("div", { class: "foot", text: c.foot }) : null
+        ]);
+      })) ]);
+      if (prev && prev.classList.contains("hero")) { prev.firstChild.appendChild(box); return null; }
+      return el("section", { class: "band" }, [ el("div", { class: "wrap" }, [ box ]) ]);
+    },
+    parthead: function (s) {
+      return el("section", { class: "part", id: s.id || null }, [ el("div", { class: "wrap" }, [
+        has(s.kicker) ? legend(s.kicker) : null,
+        el("h2", { text: s.title || "" }),
+        has(s.sub) ? el("p", { html: s.sub }) : null
+      ]) ]);
+    },
+    panels: function (s, d, inPart) {
+      if (!has(s.panels)) return null;
+      var grid = el("div", { class: "panels" + (Number(s.cols) === 2 ? " c2" : "") });
+      s.panels.forEach(function (p) {
+        if (!p) return;
+        var kids = [], hasTable = has(p.cols) && has(p.rows);
+        if (has(p.kicker)) kids.push(legend(p.kicker));
+        if (has(p.legend)) kids.push(legendRow(p.legend));
+        if (has(p.bars)) kids.push(ledger(p.bars));
+        if (hasTable) kids.push(docCard(table(p.cols, p.rows)));
+        if (has(p.html)) kids.push(el("p", { class: "note", html: p.html }));
+        var note = has(p.note) ? p.note : p.takeaway;
+        if (has(note)) kids.push(el("p", { class: "note", html: note }));
+        if (p.callout && has(p.callout.html)) kids.push(el("p", { class: "note", html: p.callout.html }));
+        grid.appendChild(el("div", { class: "panel" }, kids));
+      });
+      return band(s, [ grid ], inPart);
+    },
+    goodband: function (s, d, inPart) {
+      if (!has(s.stats)) return null;
+      return band(s, [ strip(s.stats.map(function (st) {
+        return el("div", {}, [ el("div", { class: "fig", html: txt(st.big) }), el("div", { class: "foot", text: st.lbl }) ]);
+      })) ], inPart);
+    },
+    /* App-to-data diagram: apps on the left, data areas on the right, one line for each app and area. The build places every
+       bar and line for each view; this draws the chosen view and, on a click, keeps one app's or one data area's lines and
+       lists the permissions behind them. Every word and figure shown comes from the section. */
+    sankey: function (s, d, inPart) {
+      if (!has(s.views) || !has(s.apps) || !has(s.areas)) return null;
+      var NS = "http://www.w3.org/2000/svg", g = s.geom || {}, W = g.w || 1000, AX = g.ax || 300, RX = g.rx || 694,
+          BAR = g.bar || 6, LINE = g.line || 4, MID = (AX + BAR + RX) / 2, view = s.views[0], pick = null, svg = null;
+      function sv(tag, attrs, kids) {
+        var n = document.createElementNS(NS, tag);
+        for (var k in attrs) if (attrs[k] != null) n.setAttribute(k, attrs[k]);
+        (kids || []).forEach(function (c) { if (c != null) n.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+        return n;
+      }
+      function short(t) { return t.length > 46 ? t.slice(0, 45) + "…" : t; }
+      function appName(a) { return txt(a.label) + (has(a.count) ? " ×" + a.count : ""); }
+      function inView(r) { return view.key === "all" || r.k === view.key; }
+      var chips = el("div", { class: "sk-chips" }), box = el("div", { class: "doc sk-box" }), detail = el("div", { class: "sk-detail" });
+      var buttons = s.views.map(function (v) {
+        var b = el("button", { type: "button", "aria-pressed": String(v === view) }, [ txt(v.label) + " · " + txt(v.count) ]);
+        b.addEventListener("click", function () {
+          view = v;
+          buttons.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+          draw();
+        });
+        chips.appendChild(b);
+        return b;
+      });
+      function head(title, sub) {
+        var clear = el("button", { type: "button" }, [ "Clear" ]);
+        clear.addEventListener("click", function () { select(null); });
+        return el("div", { class: "sk-head" }, [ el("b", { text: title }), has(sub) ? el("span", { class: "sub", text: sub }) : null, clear ]);
+      }
+      function select(p) {
+        pick = p;
+        var apps = {}, areas = {};
+        if (p) view.links.forEach(function (l) {
+          if (p.a != null ? l[0] === p.a : l[1] === p.r) { apps[l[0]] = 1; areas[l[1]] = 1; }
+        });
+        svg.classList.toggle("sk-sel", !!p);
+        var els = svg.querySelectorAll("[data-a],[data-r]");
+        for (var i = 0; i < els.length; i++) {
+          var e = els[i], a = e.getAttribute("data-a"), r = e.getAttribute("data-r"), on = false;
+          if (p && a != null && r != null) on = p.a != null ? +a === p.a : +r === p.r;
+          else if (p && a != null) on = !!apps[a];
+          else if (p) on = !!areas[r];
+          e.classList.toggle("on", on);
+        }
+        detail.innerHTML = "";
+        if (!p) return;
+        if (p.a != null) {
+          var app = s.apps[p.a];
+          detail.appendChild(head(appName(app), app.sub));
+          detail.appendChild(table(s.appCols, app.rows.filter(inView)));
+          return;
+        }
+        var rows = [], count = view.areas.filter(function (x) { return x[0] === p.r; })[0];
+        view.apps.forEach(function (va) {
+          if (!apps[va[0]]) return;
+          var app = s.apps[va[0]];
+          app.rows.forEach(function (r) {
+            if (r.r === p.r && inView(r)) rows.push({ app: { text: appName(app), sub: app.sub }, how: r.how, perm: r.perm, rw: r.rw });
+          });
+        });
+        detail.appendChild(head(txt(s.areas[p.r]), "Apps: " + txt(count && count[3])));
+        detail.appendChild(table(s.areaCols, rows));
+      }
+      function draw() {
+        svg = sv("svg", { viewBox: "0 0 " + W + " " + view.h, role: "img", "aria-label": txt(s.title) + ": " + txt(view.label) });
+        var lines = sv("g", {}), bars = sv("g", {}), labels = sv("g", {});
+        view.links.forEach(function (l) {
+          lines.appendChild(sv("path", { class: "sk-l " + (l[4] ? "w" : "r"), "stroke-width": LINE - 0.8, "data-a": l[0], "data-r": l[1],
+            d: "M" + (AX + BAR) + " " + l[2] + "C" + MID + " " + l[2] + " " + MID + " " + l[3] + " " + RX + " " + l[3] }));
+        });
+        view.apps.forEach(function (va) {
+          var app = s.apps[va[0]];
+          bars.appendChild(sv("rect", { class: "sk-n", x: AX, y: va[1], width: BAR, height: va[2], "data-a": va[0] }));
+          var t = sv("text", { class: "sk-t", x: AX - 7, y: va[1] + va[2] / 2, "text-anchor": "end", "dominant-baseline": "central",
+            "data-a": va[0], tabindex: "0", role: "button" }, [ sv("title", {}, [ appName(app) ]), short(txt(app.label)) ]);
+          if (has(app.count)) t.appendChild(sv("tspan", { class: "c" }, [ " ×" + app.count ]));
+          labels.appendChild(t);
+        });
+        view.areas.forEach(function (va) {
+          bars.appendChild(sv("rect", { class: "sk-n", x: RX, y: va[1], width: BAR, height: Math.max(va[2], 1), "data-r": va[0] }));
+          labels.appendChild(sv("text", { class: "sk-t", x: RX + BAR + 8, y: va[1] + va[2] / 2, "dominant-baseline": "central",
+            "data-r": va[0], tabindex: "0", role: "button" }, [ txt(s.areas[va[0]]), sv("tspan", { class: "c" }, [ "  " + txt(va[3]) ]) ]));
+        });
+        svg.appendChild(lines); svg.appendChild(bars); svg.appendChild(labels);
+        svg.addEventListener("click", function (e) {
+          var t = e.target.closest ? e.target.closest("[data-a],[data-r]") : null;
+          if (!t) { select(null); return; }
+          var a = t.getAttribute("data-a"), p = a != null ? { a: +a } : { r: +t.getAttribute("data-r") };
+          select(pick && pick.a === p.a && pick.r === p.r ? null : p);
+        });
+        svg.addEventListener("keydown", function (e) {
+          if ((e.key === "Enter" || e.key === " ") && e.target.getAttribute && e.target.getAttribute("role") === "button") {
+            e.preventDefault();
+            e.target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+          }
+        });
+        box.innerHTML = "";
+        box.appendChild(svg);
+        select(null);
+      }
+      draw();
+      return band(s, [ chips, has(s.legend) ? legendRow(s.legend) : null, box, detail,
+        has(s.note) ? el("p", { class: "note", html: s.note }) : null ], inPart);
+    },
+    footer: function (s, d) {
+      var b = d.brand || {}, name = txt(b.name).trim(), bits = [];
+      if (has(s.disclaimer)) bits.push(s.disclaimer);
+      return el("footer", {}, [ el("div", { class: "wrap" }, [
+        has(s.cells) ? el("div", { class: "foot-fields" }, s.cells.map(function (c) { return el("div", {}, [ legend(c.h), el("p", { html: c.body }) ]); })) : null,
+        el("div", { class: "closing" }, [
+          (name || has(s.sig)) ? el("div", { class: "who" }, [ name || null, (name && has(s.sig)) ? " · " : null, has(s.sig) ? el("span", { html: s.sig }) : null ]) : null,
+          bits.length ? el("p", { class: "disclaimer", html: bits.join(" ") }) : null,
+          has(b.footer) ? el("p", { class: "brandfoot", text: txt(b.footer) }) : null
+        ])
+      ]) ]);
+    }
+  };
+
+  function inkSegments() {
+    var segs = document.querySelectorAll(".seg[data-v]");
+    for (var i = 0; i < segs.length; i++) {
+      var m = getComputedStyle(segs[i]).backgroundColor.match(/[\d.]+/g);
+      if (m && m.length >= 3) segs[i].style.color = inkOn([+m[0], +m[1], +m[2]]);
+    }
+  }
+
+  // Two-column panel sections in reading order, with no gap left beside a short panel: each panel spans as many 4px rows
+  // as it is tall, so grid placement puts the next panel under whichever column ends first, and an odd last panel moves up
+  // under a shorter one instead of starting a new row (2026-10-14). One column below 901px wide and in print.
+  function flow() {
+    var wide = window.matchMedia("(min-width: 901px)").matches, grids = document.querySelectorAll(".panels.c2");
+    for (var i = 0; i < grids.length; i++) {
+      var g = grids[i], ps = g.children, j;
+      g.classList.remove("flow");
+      for (j = 0; j < ps.length; j++) ps[j].style.gridRowEnd = "";
+      if (!wide || ps.length < 3) continue;
+      var h = [];
+      for (j = 0; j < ps.length; j++) h.push(ps[j].getBoundingClientRect().height);
+      g.classList.add("flow");
+      for (j = 0; j < ps.length; j++) ps[j].style.gridRowEnd = "span " + Math.ceil((h[j] + 20) / 4);
+    }
+  }
+
+  function render(d) {
+    var root = document.getElementById("root"), b = d.brand || {};
+    if (HEX.test(b.accent || "")) {
+      document.documentElement.style.setProperty("--accent", b.accent);
+      document.body.classList.add("has-accent");
+    }
+    var bar = brandBar(b);
+    if (bar) root.appendChild(bar);
+    if (HEX.test(b.accent || "")) root.appendChild(el("div", { class: "brandrule" }));
+    var part = null, prev = null;
+    (d.sections || []).forEach(function (s) {
+      var fn = SECTIONS[s.type], inPart = part != null && s.kicker === part;
+      var node = fn ? fn(s, d, inPart, prev)
+        : el("div", { class: "wrap" }, [ el("div", { class: "unknown", text: "This report page has no renderer for section type: " + s.type }) ]);
+      part = s.type === "parthead" ? (s.kicker || null) : (inPart ? part : null);
+      if (node) { root.appendChild(node); prev = node; }
+    });
+    inkSegments();
+    flow();
+    var wait;
+    window.addEventListener("resize", function () { clearTimeout(wait); wait = setTimeout(flow, 120); });
+    window.addEventListener("load", flow);
+  }
+
+  try { render(JSON.parse(document.getElementById("report-data").textContent)); }
+  catch (e) { document.getElementById("root").appendChild(el("div", { class: "wrap" }, [ el("div", { class: "unknown", text: "The report data could not be read: " + e.message }) ])); }
+})();
+</script>
+</body>
+</html>

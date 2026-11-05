@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.29/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.29",
+  "version": "0.6.3",
+  "id": "b2dc655c-444d-55e0-8a9c-8c6c8ff2bbfb",
+  "developer": {
+    "name": "Inspect 365",
+    "websiteUrl": "https://inspect365.app",
+    "privacyUrl": "https://inspect365.app/privacy",
+    "termsOfUseUrl": "https://inspect365.app/terms"
+  },
+  "name": {
+    "short": "Inspect 365",
+    "full": "Inspect 365"
+  },
+  "description": {
+    "short": "Findings, users, devices and apps across the Microsoft 365 tenants you manage",
+    "full": "Inspect 365 collects data from Entra, Intune, Defender and other Microsoft 365 services for each tenant an MSP manages, and keeps the findings and the decisions made on them. This plugin connects Copilot to that data, so you can ask about a client's findings and their history, users, devices, apps, policies and Secure Score, or compare tenants. Its reports skill builds fact reports for one tenant from fixed queries and scripts: a tenant overview, users and groups, devices, Entra apps, app access, installed software, and mailboxes with Teams and SharePoint. Requires an Inspect 365 account. You sign in with the work account you use for Inspect 365."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#0C1514",
+  "agentSkills": [
+    {
+      "folder": "skills/inspect365-reports"
+    }
+  ],
+  "agentConnectors": [
+    {
+      "id": "inspect365",
+      "displayName": "Inspect 365",
+      "description": "Inspect 365 data for the tenants you manage: findings and their status history, users, devices, apps, groups, policies and Secure Score.",
+      "toolSource": {
+        "remoteMcpServer": {
+          "mcpServerUrl": "https://us-mcp.inspect365.app/mcp",
+          "mcpToolDescription": {
+            "file": "tools/inspect365-tools.json"
+          },
+          "authorization": {
+            "type": "OAuthPluginVault",
+            "referenceId": "MDZjMjgyNjctZWQ1NS00ZjMwLWE1NzAtYTliNmVmMmRmM2U4IyMxM2RjNzEwNy1kNWU4LTQzNDItYmIzOS00YmVmNTQyMGQyODU="
+          }
+        }
+      }
+    }
+  ]
+}

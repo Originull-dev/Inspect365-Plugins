@@ -1,0 +1,20 @@
+{
+  "name": "inspect365",
+  "displayName": "Inspect 365",
+  "version": "0.6.3",
+  "description": "Findings, users, devices and apps across the Microsoft 365 tenants you manage, from Inspect 365.",
+  "author": {
+    "name": "Inspect 365",
+    "url": "https://inspect365.app"
+  },
+  "homepage": "https://inspect365.app",
+  "repository": "https://github.com/Originull-dev/Inspect365-Plugins",
+  "keywords": [
+    "microsoft-365",
+    "entra",
+    "intune",
+    "defender",
+    "msp",
+    "reports"
+  ]
+}

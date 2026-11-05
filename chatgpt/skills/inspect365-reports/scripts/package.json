@@ -1,0 +1,24 @@
+{
+ "version": "0.6.3",
+ "environment": "us-production",
+ "built": "2026-11-05",
+ "files": {
+  "SKILL.md": "bfff34cdc80e1d46598e300ad261f490695d08000a43147203388cbe30f56dab",
+  "scripts/app_access_build.py": "dcb8ee439c1bf9a1051dab4f467b321e9cbd4c9a57fb6470eedf3437e352f343",
+  "scripts/app_reach.py": "9b45dcde39633159661255079efd78ca1c32250193bae29e4570c20be46512a4",
+  "scripts/check_facts.py": "383a78e9f1521f8784e1685ef3b5f47d547518e0e62ca6368167a4e4ced5c591",
+  "scripts/collaboration_deep_dive_build.py": "0f817f012036240a587f21f142ecc4d1bb41efa2a6a3b0b7847a569680c8667d",
+  "scripts/common.py": "62e602d7e8358c3ac492d1649ff995e0d2f4037b4cb49f9b9610137fc59b2f71",
+  "scripts/devices_deep_dive_build.py": "888266561d164015a71bd23cb52ed9a22b7ea2ca6f7d77ca63c4c6493ddf6070",
+  "scripts/entra_apps_deep_dive_build.py": "4d22e1399cb0f4c7318166b10b8c06d159e8d8b3a6efef82e9f56cb76b7d9469",
+  "scripts/identity_deep_dive_build.py": "d41bdbcbdf151c27fc2d60b81aec32890bd92a1da97d91127ac24d3f9db4e470",
+  "scripts/installed_software_deep_dive_build.py": "a986092a59280665d4a27ba41a8f8a5cc110f404b60a1c6be4bb1198dfce9d6c",
+  "scripts/recipes.json": "35e032946d5abf36b877bbbdb9f579d8f6cbdd654a45293a8dbe1ab2d506d916",
+  "scripts/render_report.py": "6d604e1f695acfa9fd15bc88c8a8b1b2e0608dfca65d78d36ed24d1f9c2fbcb8",
+  "scripts/report-template.html": "8cbaf1a5aa4004387368a5e6e289e8cb46fe7d89403b4f13351353d8fd1b9f04",
+  "scripts/report.py": "90d2b5368c4efe61109906425374b8b901493bb8328853d03b79fb3f3b5f6ebd",
+  "scripts/save_input.py": "676639e7e787498968e725d8d0d3ac67035b7295e2907030ed7459d8c694c777",
+  "scripts/selftest.py": "8ef761e9ba7c5149f624061a2d6b7d517e2f37ceeb8f30de06b07decb00ae714",
+  "scripts/tenant_overview_build.py": "5f6e5487dd16e73da301902c0bebd5a0237fa10460ab51a9095dfab92afd3cb6"
+ }
+}
