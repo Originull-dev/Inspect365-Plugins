@@ -1,0 +1,351 @@
+{
+ "tenant_overview": {
+  "recipe": "tenant-overview",
+  "version": "0.2.0",
+  "params": [
+   "tenantId",
+   "asOf"
+  ],
+  "note": "Every value in the report comes from one of these calls, run exactly as written with the params filled in. Everything works from one collection run, as on a prospect's first pull: aggregates, the latest Microsoft Secure Score snapshot (secure_score, no filter), the Secure Score recommended actions below their maximum points, and three lists for the high-impact section. A list longer than its maxResults is paged with pageToken and saved as one input; the build fails if a list was cut short. maxBuckets and maxResults values are unique per call so the echo in each response identifies it.",
+  "queries": [
+   {
+    "id": "findings_open_by_type",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "type",
+    "maxBuckets": 51,
+    "filters": [
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "findings_accepted_by_type",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "type",
+    "maxBuckets": 52,
+    "filters": [
+     {
+      "field": "latestStatusName",
+      "operator": "eq",
+      "value": "Accepted"
+     }
+    ]
+   },
+   {
+    "id": "findings_open_by_check",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 99,
+    "filters": [
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "definitions",
+    "tool": "list_finding_definitions",
+    "detail": true
+   },
+   {
+    "id": "secure_score",
+    "tool": "query",
+    "entity": "secure-score",
+    "maxResults": 68
+   },
+   {
+    "id": "controls_below_max_by_category",
+    "tool": "aggregate",
+    "entity": "secure-scores",
+    "groupBy": "controlCategory",
+    "maxBuckets": 65,
+    "filters": [
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "controlScore.scoreInPercentage",
+      "operator": "lt",
+      "value": 100
+     }
+    ]
+   },
+   {
+    "id": "controls_scored_by_category",
+    "tool": "aggregate",
+    "entity": "secure-scores",
+    "groupBy": "controlCategory",
+    "maxBuckets": 66,
+    "filters": [
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "controlScore.scoreInPercentage",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "secure_score_actions",
+    "tool": "query",
+    "entity": "secure-scores",
+    "maxResults": 94,
+    "fields": [
+     "id",
+     "title",
+     "service",
+     "controlCategory",
+     "maxScore",
+     "controlScore.score",
+     "rank",
+     "controlScore.implementationStatus",
+     "controlStateUpdates[].state",
+     "controlStateUpdates[].updatedDateTime"
+    ],
+    "filters": [
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "controlScore.scoreInPercentage",
+      "operator": "lt",
+      "value": 100
+     }
+    ]
+   },
+   {
+    "id": "users_by_type",
+    "tool": "aggregate",
+    "entity": "users",
+    "groupBy": "userType",
+    "maxBuckets": 53
+   },
+   {
+    "id": "members_by_enabled",
+    "tool": "aggregate",
+    "entity": "users",
+    "groupBy": "accountEnabled",
+    "maxBuckets": 54,
+    "filters": [
+     {
+      "field": "userType",
+      "operator": "eq",
+      "value": "Member"
+     }
+    ]
+   },
+   {
+    "id": "groups_by_type",
+    "tool": "aggregate",
+    "entity": "groups",
+    "groupBy": "groupType.displayName",
+    "maxBuckets": 55
+   },
+   {
+    "id": "devices_by_ownership",
+    "tool": "aggregate",
+    "entity": "devices",
+    "groupBy": "ownershipClassification",
+    "maxBuckets": 56
+   },
+   {
+    "id": "corporate_by_inactive",
+    "tool": "aggregate",
+    "entity": "devices",
+    "groupBy": "isInactive",
+    "maxBuckets": 57,
+    "filters": [
+     {
+      "field": "ownershipClassification",
+      "operator": "eq",
+      "value": "Corporate"
+     }
+    ]
+   },
+   {
+    "id": "devices_by_os",
+    "tool": "aggregate",
+    "entity": "devices",
+    "groupBy": "operatingSystem",
+    "maxBuckets": 58
+   },
+   {
+    "id": "apps_by_category",
+    "tool": "aggregate",
+    "entity": "service-principals",
+    "groupBy": "servicePrincipalCategory",
+    "maxBuckets": 59
+   },
+   {
+    "id": "apps_other_publishers",
+    "tool": "aggregate",
+    "entity": "service-principals",
+    "groupBy": "servicePrincipalCategory",
+    "maxBuckets": 67,
+    "filters": [
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "isNotNull"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "{tenantId}"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "f8cdef31-a31e-4b4a-93e4-5f571e91255a"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "cdc5aeea-15c5-4db6-b079-fcadd2505dc2"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "33e01921-4d64-4f8c-a055-5bdaffd5e33d"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "0d933fb8-3f65-4722-9430-08d60fc88af4"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "975f013f-7f24-47e8-a7d3-abc4752bf346"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "47df5bb7-e6bc-4256-afb0-dd8c8e3c1ce8"
+     }
+    ]
+   },
+   {
+    "id": "software_by_name",
+    "tool": "aggregate",
+    "entity": "defender-applications",
+    "groupBy": "softwareName",
+    "maxBuckets": 60
+   },
+   {
+    "id": "mailboxes_by_type",
+    "tool": "aggregate",
+    "entity": "mailboxes",
+    "groupBy": "recipientTypeDetails",
+    "maxBuckets": 61
+   },
+   {
+    "id": "teams_by_visibility",
+    "tool": "aggregate",
+    "entity": "teams",
+    "groupBy": "visibility",
+    "maxBuckets": 62
+   },
+   {
+    "id": "sites_by_personal",
+    "tool": "aggregate",
+    "entity": "sharepoint-sites",
+    "groupBy": "isPersonalSite",
+    "maxBuckets": 63
+   },
+   {
+    "id": "ca_by_state",
+    "tool": "aggregate",
+    "entity": "conditional-access-policies",
+    "groupBy": "state",
+    "maxBuckets": 64
+   },
+   {
+    "id": "high_impact_users",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 69,
+    "fields": [
+     "id",
+     "displayName",
+     "accountEnabled",
+     "system.impactSources[].type"
+    ],
+    "filters": [
+     {
+      "field": "system.impactSources[].type",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "high_impact_devices",
+    "tool": "query",
+    "entity": "devices",
+    "maxResults": 70,
+    "fields": [
+     "id",
+     "displayName",
+     "owner",
+     "operatingSystem",
+     "ownershipClassification",
+     "isInactive",
+     "defenderDeviceId",
+     "defenderDevice.exposureLevel",
+     "system.impactSources[].type",
+     "system.impactSources[].inheritanceSourceId"
+    ],
+    "filters": [
+     {
+      "field": "system.impactSources[].type",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "critical_software",
+    "tool": "query",
+    "entity": "defender-applications",
+    "maxResults": 71,
+    "fields": [
+     "id",
+     "softwareName",
+     "softwareVersion",
+     "devices[].coreDeviceId"
+    ],
+    "filters": [
+     {
+      "field": "defenderApplication_maxSeverity",
+      "operator": "eq",
+      "value": "Critical"
+     }
+    ]
+   }
+  ]
+ }
+}

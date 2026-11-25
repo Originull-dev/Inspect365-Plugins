@@ -1,0 +1,231 @@
+{
+ "sharepoint_permissions": {
+  "recipe": "sharepoint-permissions",
+  "version": "0.2.1",
+  "params": [
+   "tenantId"
+  ],
+  "note": "Every row of the two pages comes from these calls, run exactly as written with the tenant filled in. Long lists come in pages: follow nextPageToken to the last page. The grants and the role assignments are large (a page of 100 grants is about 75,000 characters). latestRun reads only the newest collection run (firstPageOnly): its nextPageToken is not followed.",
+  "queries": [
+   {
+    "id": "latestRun",
+    "tool": "query",
+    "entity": "collection-runs",
+    "maxResults": 1,
+    "fields": [
+     "runId",
+     "startedAt",
+     "completedAt",
+     "nodes[].name",
+     "nodes[].status"
+    ],
+    "firstPageOnly": true
+   },
+   {
+    "id": "sites",
+    "tool": "query",
+    "entity": "sharepoint-sites",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "displayName",
+     "name",
+     "webUrl",
+     "isPersonalSite",
+     "entraGroup.id",
+     "entraGroup.displayName",
+     "entraGroup.isTeamsConnected",
+     "entraGroup.teamId",
+     "usageReport.rootWebTemplate",
+     "siteCollection.archivalDetails.archiveStatus",
+     "documentLibraryCount",
+     "createdDateTime",
+     "owners"
+    ],
+    "filters": [
+     {
+      "field": "isPersonalSite",
+      "operator": "eq",
+      "value": false
+     }
+    ]
+   },
+   {
+    "id": "securables",
+    "tool": "query",
+    "entity": "sharepoint-securables",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "siteId",
+     "siteUrl",
+     "siteCollectionId",
+     "kind",
+     "webId",
+     "webTitle",
+     "webUrl",
+     "webTemplate",
+     "parentWebId",
+     "listId",
+     "listTitle",
+     "listUrl",
+     "driveId",
+     "isRootWeb",
+     "isSystemLibrary",
+     "hasUniqueRoleAssignments",
+     "inheritsFromId",
+     "inheritsFromUrl",
+     "rootSecurableId",
+     "m365GroupId",
+     "readOnly",
+     "siteStatus.status",
+     "siteStatus.error",
+     "siteStatus.collectedAt",
+     "siteStatus.lastSucceededAt",
+     "siteStatus.runId",
+     "siteStatus.warnings"
+    ]
+   },
+   {
+    "id": "roleAssignments",
+    "tool": "query",
+    "entity": "sharepoint-securables",
+    "maxResults": 25,
+    "fields": [
+     "id",
+     "roleAssignments"
+    ],
+    "filters": [
+     {
+      "field": "roleAssignments",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "siteGroups",
+    "tool": "query",
+    "entity": "sharepoint-site-groups",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "siteId",
+     "siteUrl",
+     "groupId",
+     "title",
+     "role",
+     "ownerTitle",
+     "isSharingLinkGroup",
+     "isLimitedAccessSystemGroup",
+     "memberCount",
+     "membersTruncated"
+    ],
+    "filters": [
+     {
+      "field": "isSharingLinkGroup",
+      "operator": "eq",
+      "value": false
+     }
+    ]
+   },
+   {
+    "id": "grants",
+    "tool": "query",
+    "entity": "sharepoint-grants",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "securableId",
+     "siteId",
+     "principalKind",
+     "principalId",
+     "title",
+     "userPrincipalName",
+     "loginName",
+     "nameId",
+     "isExternal",
+     "hasUserDocument",
+     "expansion",
+     "memberCount",
+     "claimType",
+     "sharePointTitle",
+     "highestAccessLevel",
+     "roleDefinitionDocumentId",
+     "assignments"
+    ],
+    "filters": [
+     {
+      "field": "inheritedFromId",
+      "operator": "isNull"
+     }
+    ]
+   },
+   {
+    "id": "levels",
+    "tool": "query",
+    "entity": "sharepoint-permission-levels",
+    "maxResults": 25,
+    "fields": [
+     "id",
+     "siteId",
+     "siteUrl",
+     "webId",
+     "webUrl",
+     "isSubsite",
+     "definitions"
+    ]
+   },
+   {
+    "id": "users",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "accountEnabled",
+     "userType"
+    ]
+   },
+   {
+    "id": "teams",
+    "tool": "query",
+    "entity": "teams",
+    "maxResults": 50,
+    "fields": [
+     "id",
+     "displayName",
+     "isArchived",
+     "visibility",
+     "sharepointSite.siteId",
+     "sharepointSite.webUrl",
+     "channels[].displayName",
+     "channels[].membershipType",
+     "channels[].createdDateTime",
+     "channels[].webUrl"
+    ]
+   },
+   {
+    "id": "groupInfo",
+    "tool": "query",
+    "entity": "groups",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "displayName",
+     "visibility",
+     "team.id",
+     "createdDateTime",
+     "sharepointSite.id"
+    ],
+    "filters": [
+     {
+      "field": "sharepointSite.id",
+      "operator": "isNotNull"
+     }
+    ]
+   }
+  ]
+ }
+}

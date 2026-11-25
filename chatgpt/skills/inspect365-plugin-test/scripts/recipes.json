@@ -1,0 +1,323 @@
+{
+ "devices_deep_dive": {
+  "recipe": "devices-deep-dive",
+  "version": "0.3.0",
+  "params": [
+   "tenantId",
+   "asOf"
+  ],
+  "note": "Every value in the report comes from one of these calls, run exactly as written with the params filled in. A list longer than its maxResults is paged with pageToken and saved as one input; the build fails if a list was cut short. Every call reads one collection run; nothing needs history across runs.",
+  "queries": [
+   {
+    "id": "devices_by_ownership",
+    "tool": "aggregate",
+    "entity": "devices",
+    "groupBy": "ownershipClassification",
+    "maxBuckets": 11
+   },
+   {
+    "id": "corporate_by_activity",
+    "tool": "aggregate",
+    "entity": "devices",
+    "groupBy": "isInactive",
+    "maxBuckets": 12,
+    "filters": [
+     {
+      "field": "ownershipClassification",
+      "operator": "eq",
+      "value": "Corporate"
+     }
+    ]
+   },
+   {
+    "id": "corporate_active",
+    "tool": "query",
+    "entity": "devices",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "displayName",
+     "owner",
+     "operatingSystem",
+     "operatingSystemVersion",
+     "operatingSystemEdition",
+     "joinType",
+     "entraDevice.profileType",
+     "entraDevice.manufacturer",
+     "entraDevice.model",
+     "intuneDevice.manufacturer",
+     "intuneDevice.model",
+     "intuneDevice.serialNumber",
+     "intuneDevice.storageTotal",
+     "intuneDevice.storageFree",
+     "intuneDevice.encryptionStatus.tpmSpecificationVersion",
+     "entraDevice.enrollmentProfileName",
+     "entraDeviceId",
+     "intuneDeviceId",
+     "defenderDeviceId",
+     "entraDeviceLastContact",
+     "intuneDeviceLastContact",
+     "defenderDeviceLastContact",
+     "intuneCompliantState",
+     "intuneInGracePeriodUntil",
+     "intuneDevice.compliancePolicies[].name",
+     "intuneDevice.compliancePolicies[].policyState",
+     "intuneDevice.compliancePolicies[].settings[].name",
+     "intuneDevice.compliancePolicies[].settings[].displayName",
+     "intuneDevice.compliancePolicies[].settings[].state",
+     "intuneDevice.encryptionStatus.encryptionState",
+     "intuneDevice.encryptionStatus.encryptionReadinessState",
+     "intuneDevice.encryptionStatus.advancedBitLockerStates",
+     "isBitlockerRecoveryKeyEscrowed",
+     "intuneDevice.firewallStatus.firewallStatus",
+     "intuneDevice.firewallStatus.firewallStatus_loc",
+     "intuneDevice.firewallStatus.lastReportedDateTime",
+     "intuneDevice.workFromAnywhereStatus.upgradeEligibility",
+     "intuneDevice.workFromAnywhereStatus.osCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.processor64BitCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.processorCoreCountCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.processorFamilyCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.processorSpeedCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.ramCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.secureBootCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.storageCheckFailed",
+     "intuneDevice.workFromAnywhereStatus.tpmCheckFailed",
+     "defenderDevice.healthStatus",
+     "defenderDevice.riskScore",
+     "defenderDevice.exposureLevel",
+     "defenderDevice.osPlatform",
+     "defenderDevice.deviceAvInfo.avModeName",
+     "defenderDevice.deviceAvInfo.avIsSignatureUpToDate",
+     "defenderDevice.deviceAvInfo.avIsEngineUpToDate",
+     "defenderDevice.deviceAvInfo.avIsPlatformUpToDate",
+     "system.impactSources[].type",
+     "system.impactSources[].sourceRule"
+    ],
+    "filters": [
+     {
+      "field": "ownershipClassification",
+      "operator": "eq",
+      "value": "Corporate"
+     },
+     {
+      "field": "isInactive",
+      "operator": "eq",
+      "value": false
+     }
+    ]
+   },
+   {
+    "id": "corporate_inactive",
+    "tool": "query",
+    "entity": "devices",
+    "maxResults": 99,
+    "fields": [
+     "id",
+     "displayName",
+     "operatingSystem",
+     "lastContact",
+     "entraDeviceId",
+     "intuneDeviceId",
+     "defenderDeviceId"
+    ],
+    "filters": [
+     {
+      "field": "ownershipClassification",
+      "operator": "eq",
+      "value": "Corporate"
+     },
+     {
+      "field": "isInactive",
+      "operator": "eq",
+      "value": true
+     }
+    ]
+   },
+   {
+    "id": "autopilot_registered",
+    "tool": "query",
+    "entity": "devices",
+    "maxResults": 96,
+    "fields": [
+     "id",
+     "displayName",
+     "owner",
+     "ownershipClassification",
+     "isInactive",
+     "entraDeviceId",
+     "intuneDeviceId",
+     "defenderDeviceId",
+     "autopilotEnrollmentState",
+     "autopilotDeviceLastContact",
+     "autopilotDevice.manufacturer",
+     "autopilotDevice.model",
+     "system.impactSources[].type",
+     "system.impactSources[].sourceRule"
+    ],
+    "filters": [
+     {
+      "field": "isAutopilotRegistered",
+      "operator": "eq",
+      "value": true
+     }
+    ]
+   },
+   {
+    "id": "critical_software_by_device",
+    "tool": "aggregate",
+    "entity": "defender-applications",
+    "groupBy": "devices[].coreDeviceId",
+    "maxBuckets": 100,
+    "filters": [
+     {
+      "field": "defenderApplication_maxSeverity",
+      "operator": "eq",
+      "value": "Critical"
+     }
+    ]
+   },
+   {
+    "id": "device_findings_open",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 93,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "eq",
+      "value": "Device"
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "device_findings_accepted",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 92,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "eq",
+      "value": "Device"
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "eq",
+      "value": "Accepted"
+     }
+    ]
+   },
+   {
+    "id": "definitions",
+    "tool": "list_finding_definitions",
+    "detail": true
+   },
+   {
+    "id": "secure_score",
+    "tool": "query",
+    "entity": "secure-score",
+    "maxResults": 98
+   },
+   {
+    "id": "secure_score_controls",
+    "tool": "query",
+    "entity": "secure-scores",
+    "maxResults": 97,
+    "fields": [
+     "id",
+     "title",
+     "service",
+     "maxScore",
+     "controlScore.score",
+     "controlScore.scoreInPercentage",
+     "rank",
+     "securityCenterRecommendation.recommendationCategory"
+    ],
+    "filters": [
+     {
+      "field": "controlCategory",
+      "operator": "eq",
+      "value": "Device"
+     },
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "controlScore.scoreInPercentage",
+      "operator": "lt",
+      "value": 100
+     }
+    ]
+   }
+  ]
+ },
+ "selftest": {
+  "version": "1.0.0",
+  "about": "The self-test's live calls. build.py merges them into the package's recipes.json under selftest; selftest.py plans and checks them. The first is the tenant overview's first call, the one Cowork failed on with plugin 0.5.1.",
+  "queries": [
+   {
+    "id": "open_findings_by_type",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "type",
+    "maxBuckets": 51,
+    "filters": [
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "open_findings_by_type_again",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "type",
+    "maxBuckets": 51,
+    "filters": [
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "enabled_users_page",
+    "tool": "query",
+    "entity": "users",
+    "fields": [
+     "id",
+     "accountEnabled"
+    ],
+    "maxResults": 5,
+    "filters": [
+     {
+      "field": "accountEnabled",
+      "operator": "eq",
+      "value": true
+     }
+    ]
+   }
+  ]
+ }
+}

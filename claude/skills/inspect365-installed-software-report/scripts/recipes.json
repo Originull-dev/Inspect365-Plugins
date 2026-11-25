@@ -1,0 +1,311 @@
+{
+ "installed_software_deep_dive": {
+  "recipe": "installed-software-deep-dive",
+  "version": "0.2.0",
+  "params": [
+   "tenantId",
+   "asOf"
+  ],
+  "note": "Every value in the report comes from one of these calls, run exactly as written with the params filled in, one at a time. Lists are paged until no nextPageToken comes back; the saver joins the pages. maxBuckets and maxResults values are unique per call so the echo in each response identifies it.",
+  "queries": [
+   {
+    "id": "software_findings_open",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 61,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "eq",
+      "value": "InstalledSoftware"
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "software_findings_accepted",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 62,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "eq",
+      "value": "InstalledSoftware"
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "eq",
+      "value": "Accepted"
+     }
+    ]
+   },
+   {
+    "id": "definitions",
+    "tool": "list_finding_definitions",
+    "detail": true
+   },
+   {
+    "id": "secure_score",
+    "tool": "query",
+    "entity": "secure-score",
+    "maxResults": 51
+   },
+   {
+    "id": "secure_score_controls",
+    "tool": "query",
+    "entity": "secure-scores",
+    "maxResults": 52,
+    "fields": [
+     "id",
+     "title",
+     "service",
+     "maxScore",
+     "controlScore.score",
+     "controlScore.scoreInPercentage",
+     "rank",
+     "securityCenterRecommendation.relatedComponent",
+     "securityCenterRecommendation.exposedMachinesCount",
+     "securityCenterRecommendation.totalMachineCount"
+    ],
+    "filters": [
+     {
+      "field": "controlCategory",
+      "operator": "eq",
+      "value": "Device"
+     },
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "controlScore.scoreInPercentage",
+      "operator": "lt",
+      "value": 100
+     },
+     {
+      "field": "securityCenterRecommendation.recommendationCategory",
+      "operator": "eq",
+      "value": "Application"
+     }
+    ]
+   },
+   {
+    "id": "software_by_vendor",
+    "tool": "aggregate",
+    "entity": "defender-applications",
+    "groupBy": "softwareVendor",
+    "maxBuckets": 64
+   },
+   {
+    "id": "software_by_name",
+    "tool": "aggregate",
+    "entity": "defender-applications",
+    "groupBy": "softwareName",
+    "maxBuckets": 65
+   },
+   {
+    "id": "software_by_device",
+    "tool": "aggregate",
+    "entity": "defender-applications",
+    "groupBy": "devices[].defenderDeviceId",
+    "maxBuckets": 100
+   },
+   {
+    "id": "software_device_records",
+    "tool": "aggregate",
+    "entity": "defender-applications",
+    "groupBy": "devices[].coreDeviceId",
+    "maxBuckets": 98
+   },
+   {
+    "id": "intune_by_publisher",
+    "tool": "aggregate",
+    "entity": "intune-applications",
+    "groupBy": "applicationPublisherExtracted",
+    "maxBuckets": 67
+   },
+   {
+    "id": "intune_by_name",
+    "tool": "aggregate",
+    "entity": "intune-applications",
+    "groupBy": "applicationName",
+    "maxBuckets": 68
+   },
+   {
+    "id": "intune_by_device",
+    "tool": "aggregate",
+    "entity": "intune-applications",
+    "groupBy": "devices[].coreDeviceId",
+    "maxBuckets": 99
+   },
+   {
+    "id": "cves_by_severity",
+    "tool": "aggregate",
+    "entity": "defender-application-vulnerabilities",
+    "groupBy": "vulnerabilitySeverityLevel",
+    "maxBuckets": 69
+   },
+   {
+    "id": "cves_by_exploit",
+    "tool": "aggregate",
+    "entity": "defender-application-vulnerabilities",
+    "groupBy": "deviceTvmSoftwareVulnerabilityDetails.isExploitAvailable",
+    "maxBuckets": 70
+   },
+   {
+    "id": "cves_by_id",
+    "tool": "aggregate",
+    "entity": "defender-application-vulnerabilities",
+    "groupBy": "cveId",
+    "maxBuckets": 71
+   },
+   {
+    "id": "critical_cves_by_id",
+    "tool": "aggregate",
+    "entity": "defender-application-vulnerabilities",
+    "groupBy": "cveId",
+    "maxBuckets": 72,
+    "filters": [
+     {
+      "field": "vulnerabilitySeverityLevel",
+      "operator": "eq",
+      "value": "Critical"
+     }
+    ]
+   },
+   {
+    "id": "cvss9_cves_by_id",
+    "tool": "aggregate",
+    "entity": "defender-application-vulnerabilities",
+    "groupBy": "cveId",
+    "maxBuckets": 73,
+    "filters": [
+     {
+      "field": "deviceTvmSoftwareVulnerabilityDetails.cvssScore",
+      "operator": "in",
+      "value": [
+       "9",
+       "9.1",
+       "9.2",
+       "9.3",
+       "9.4",
+       "9.5",
+       "9.6",
+       "9.7",
+       "9.8",
+       "9.9",
+       "10"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "exploit_cves",
+    "tool": "query",
+    "entity": "defender-application-vulnerabilities",
+    "maxResults": 90,
+    "fields": [
+     "id",
+     "cveId",
+     "coreDefenderApplicationId",
+     "productCodeCpe",
+     "osPlatform",
+     "vulnerabilitySeverityLevel",
+     "deviceTvmSoftwareVulnerabilityDetails.cvssScore",
+     "deviceTvmSoftwareVulnerabilityDetails.publishedDate"
+    ],
+    "filters": [
+     {
+      "field": "deviceTvmSoftwareVulnerabilityDetails.isExploitAvailable",
+      "operator": "eq",
+      "value": true
+     }
+    ]
+   },
+   {
+    "id": "eos_software",
+    "tool": "query",
+    "entity": "defender-applications",
+    "maxResults": 91,
+    "fields": [
+     "id",
+     "softwareName",
+     "softwareVendor",
+     "softwareVersion",
+     "osPlatform",
+     "osArchitecture",
+     "deviceCount",
+     "devices[].coreDeviceId",
+     "devices[].defenderDeviceId",
+     "devices[].displayName",
+     "endOfSupportStatus",
+     "endOfSupportDate"
+    ],
+    "filters": [
+     {
+      "field": "endOfSupportStatus",
+      "operator": "ne",
+      "value": ""
+     }
+    ]
+   },
+   {
+    "id": "vulnerable_software",
+    "tool": "query",
+    "entity": "defender-applications",
+    "maxResults": 92,
+    "fields": [
+     "id",
+     "softwareName",
+     "softwareVendor",
+     "softwareVersion",
+     "devices[].coreDeviceId",
+     "devices[].defenderDeviceId",
+     "defenderApplication_maxSeverity",
+     "defenderApplication_maxCvssScore",
+     "defenderApplication_numExploits",
+     "defenderApplication_vulnerabilityCount"
+    ],
+    "filters": [
+     {
+      "field": "defenderApplication_vulnerabilityCount",
+      "operator": "gt",
+      "value": 0
+     }
+    ]
+   },
+   {
+    "id": "high_impact_devices",
+    "tool": "query",
+    "entity": "devices",
+    "maxResults": 93,
+    "fields": [
+     "id",
+     "displayName",
+     "owner",
+     "defenderDeviceId",
+     "defenderDevice.exposureLevel",
+     "system.impactSources[].type",
+     "system.impactSources[].sourceRule"
+    ],
+    "filters": [
+     {
+      "field": "system.impactSources[].type",
+      "operator": "isNotNull"
+     }
+    ]
+   }
+  ]
+ }
+}

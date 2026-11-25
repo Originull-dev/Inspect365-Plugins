@@ -6,7 +6,9 @@ Connects ChatGPT to [Inspect 365](https://inspect365.app), so you can ask about 
 
 - `plugin.json`: the plugin's name, version and the listing text ChatGPT shows, in OpenAI's plugin format.
 - `mcp.json`: the Inspect 365 connector, a remote MCP server at `https://us-mcp.inspect365.app/mcp`. ChatGPT registers itself with Inspect 365's sign-in service, and you sign in with the work account you use for Inspect 365.
-- `skills/inspect365-reports/`: the reports skill. `SKILL.md` tells ChatGPT how to plan a report's queries, run them through the connector and build the report with the Python scripts in `scripts/`. Seven reports: tenant overview, users and groups, devices, Entra apps, app access, installed software, and mailboxes with Teams and SharePoint.
+- `skills/`: nine skills. Seven build one fact report each (`inspect365-tenant-overview-report`, `inspect365-users-and-groups-report`, `inspect365-devices-report`, `inspect365-entra-apps-report`, `inspect365-app-access-report`, `inspect365-installed-software-report`, `inspect365-mailboxes-teams-sharepoint-report`): `SKILL.md` tells ChatGPT how to plan the report's queries, run them through the connector and build the report with the Python scripts in `scripts/`.
+- `skills/inspect365-sharepoint-permissions-report/`: who can open each SharePoint site and each document library, Teams sites included, as a flat report or as an explorer. It asks which style you want and whether it is for your own team or for your client; the client's copy carries no Inspect 365 name or link. It needs SharePoint permissions in your Inspect 365 data.
+- `skills/inspect365-plugin-test/`: the plugin's self-test. Ask ChatGPT to test the Inspect 365 plugin.
 - `assets/icon.png`: the plugin's icon.
 
 ## What it runs, sends and fetches

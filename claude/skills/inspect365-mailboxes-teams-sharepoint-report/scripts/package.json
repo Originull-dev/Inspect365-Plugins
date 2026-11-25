@@ -1,0 +1,16 @@
+{
+ "version": "0.8.6",
+ "environment": "us-production",
+ "built": "2026-11-25",
+ "files": {
+  "SKILL.md": "3ae9f0f09662063b39fbb1d76bb8cf49dd2ec2564f88606c683db84bcc56cc0e",
+  "scripts/check_facts.py": "383a78e9f1521f8784e1685ef3b5f47d547518e0e62ca6368167a4e4ced5c591",
+  "scripts/collaboration_deep_dive_build.py": "0f817f012036240a587f21f142ecc4d1bb41efa2a6a3b0b7847a569680c8667d",
+  "scripts/common.py": "62e602d7e8358c3ac492d1649ff995e0d2f4037b4cb49f9b9610137fc59b2f71",
+  "scripts/recipes.json": "c26967b7ca08d26092b4b71bdc01bbc9d5b77f325dbc03c0db4255fd5072eb66",
+  "scripts/render_report.py": "6d604e1f695acfa9fd15bc88c8a8b1b2e0608dfca65d78d36ed24d1f9c2fbcb8",
+  "scripts/report-template.html": "34f287f016d04b898e2e8707af5eba8fb18ab37ea185d033ad77d7a773858999",
+  "scripts/report.py": "23ffcf0dd2220323295d067b72191579df3701942e1228ef033a727e20e11d1c",
+  "scripts/save_input.py": "f37e4d8359ea58813125c10f9a9a43d6bd40fa0c73ed2c5b49d1ded634436145"
+ }
+}

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "inspect365",
-  "version": "0.6.3",
+  "version": "0.8.6",
   "description": "Findings, users, devices and apps across the Microsoft 365 tenants you manage, from Inspect 365.",
   "author": {
     "name": "Inspect 365",
@@ -22,7 +22,7 @@
       "interface": {
         "displayName": "Inspect 365",
         "shortDescription": "Microsoft 365 tenants for MSPs",
-        "longDescription": "Inspect 365 collects data from Entra, Intune, Defender and other Microsoft 365 services for each tenant an MSP manages, and keeps the findings and the decisions made on them. This plugin connects ChatGPT to that data, so you can ask about a client's findings and their history, users, devices, apps, policies and Secure Score, or compare tenants. Its reports skill builds fact reports for one tenant from fixed queries and scripts: a tenant overview, users and groups, devices, Entra apps, app access, installed software, and mailboxes with Teams and SharePoint. Requires an Inspect 365 account. You sign in with the work account you use for Inspect 365.",
+        "longDescription": "Inspect 365 collects data from Entra, Intune, Defender and other Microsoft 365 services for each tenant an MSP manages, and keeps the findings and the decisions made on them. This plugin connects ChatGPT to that data, so you can ask about a client's findings and their history, users, devices, apps, policies and Secure Score, or compare tenants. Each report is a skill of its own, built for one tenant from fixed queries and scripts: a tenant overview, users and groups, devices, Entra apps, app access, installed software, mailboxes with Teams and SharePoint, and SharePoint permissions, which shows who can open each site and document library as a flat report or an explorer. Requires an Inspect 365 account. You sign in with the work account you use for Inspect 365.",
         "developerName": "Inspect 365",
         "category": "Productivity",
         "capabilities": [
@@ -31,6 +31,7 @@
         "websiteURL": "https://inspect365.app",
         "privacyPolicyURL": "https://inspect365.app/privacy",
         "termsOfServiceURL": "https://inspect365.app/terms",
+        "supportURL": "https://support.inspect365.app",
         "defaultPrompt": [
           "Build the tenant overview report for one of my clients.",
           "Which apps outside Microsoft can read mail or files for this client?",

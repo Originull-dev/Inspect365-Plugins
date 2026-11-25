@@ -1,0 +1,16 @@
+{
+ "version": "0.8.6",
+ "environment": "us-production",
+ "built": "2026-11-25",
+ "files": {
+  "SKILL.md": "bb6cdb288efc67eb493505cfa4b01a87be0c4e2d8ab1d5980a945c88207f68a7",
+  "scripts/check_facts.py": "383a78e9f1521f8784e1685ef3b5f47d547518e0e62ca6368167a4e4ced5c591",
+  "scripts/common.py": "62e602d7e8358c3ac492d1649ff995e0d2f4037b4cb49f9b9610137fc59b2f71",
+  "scripts/recipes.json": "d2561cd52554fecca9f61a0a65bde62621268dd4f69e5a995594c17290256ffd",
+  "scripts/render_report.py": "6d604e1f695acfa9fd15bc88c8a8b1b2e0608dfca65d78d36ed24d1f9c2fbcb8",
+  "scripts/report-template.html": "34f287f016d04b898e2e8707af5eba8fb18ab37ea185d033ad77d7a773858999",
+  "scripts/report.py": "1a00fb7acdcb8d2acf7d609687c14e8ca417c5d71f987309896f6eb1c98df16b",
+  "scripts/save_input.py": "f37e4d8359ea58813125c10f9a9a43d6bd40fa0c73ed2c5b49d1ded634436145",
+  "scripts/tenant_overview_build.py": "5f6e5487dd16e73da301902c0bebd5a0237fa10460ab51a9095dfab92afd3cb6"
+ }
+}

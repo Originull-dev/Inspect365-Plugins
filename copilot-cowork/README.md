@@ -6,9 +6,11 @@ Connects Microsoft 365 Copilot Cowork to [Inspect 365](https://inspect365.app), 
 
 This folder holds the Microsoft 365 app package, unzipped. The release zip holds the same files without this README.
 
-- `manifest.json`: the app manifest (schema 1.29), with the Inspect 365 connector, a remote MCP server at `https://us-mcp.inspect365.app/mcp`, and the reports skill. You sign in with the work account you use for Inspect 365.
+- `manifest.json`: the app manifest (schema 1.29), with the Inspect 365 connector, a remote MCP server at `https://us-mcp.inspect365.app/mcp`, and the nine skills. You sign in with the work account you use for Inspect 365.
 - `tools/inspect365-tools.json`: the connector's tool list, which Cowork reads to verify the connector.
-- `skills/inspect365-reports/`: the reports skill. `SKILL.md` tells Copilot how to plan a report's queries, run them through the connector and build the report with the Python scripts in `scripts/`. Seven reports: tenant overview, users and groups, devices, Entra apps, app access, installed software, and mailboxes with Teams and SharePoint.
+- `skills/`: nine skills. Seven build one fact report each (`inspect365-tenant-overview-report`, `inspect365-users-and-groups-report`, `inspect365-devices-report`, `inspect365-entra-apps-report`, `inspect365-app-access-report`, `inspect365-installed-software-report`, `inspect365-mailboxes-teams-sharepoint-report`): `SKILL.md` tells Copilot how to plan the report's queries, run them through the connector and build the report with the Python scripts in `scripts/`.
+- `skills/inspect365-sharepoint-permissions-report/`: who can open each SharePoint site and each document library, Teams sites included, as a flat report or as an explorer. It asks which style you want and whether it is for your own team or for your client; the client's copy carries no Inspect 365 name or link. It needs SharePoint permissions in your Inspect 365 data.
+- `skills/inspect365-plugin-test/`: the plugin's self-test. Ask Copilot to test the Inspect 365 plugin.
 - `color.png` and `outline.png`: the app's icons.
 
 ## What it runs, sends and fetches

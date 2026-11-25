@@ -1,0 +1,451 @@
+{
+ "identity_deep_dive": {
+  "recipe": "identity-deep-dive",
+  "version": "0.7.0",
+  "params": [
+   "tenantId",
+   "asOf"
+  ],
+  "note": "Every value in the report comes from one of these calls, run exactly as written with the params filled in. A list returns at most maxResults rows a page: call query again with pageToken set to the previous response's nextPageToken until none comes back. The build fails if a list holds fewer rows than its totalCount. maxBuckets and maxResults values are unique per call so the echo in each response identifies it. Every call reads the latest collection run alone: nothing depends on history kept across runs.",
+  "queries": [
+   {
+    "id": "users",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 89,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "userType",
+     "accountEnabled"
+    ]
+   },
+   {
+    "id": "members_enabled",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "jobTitle",
+     "createdDateTime",
+     "lastSignInDateTime",
+     "lastSuccessfulSignInDateTime",
+     "isMfaCapable",
+     "isMfaRegistered",
+     "methodsRegistered",
+     "authRisk",
+     "isAdmin",
+     "directoryRoles[].displayName",
+     "directoryRoles[].isPrivileged",
+     "eligiblePimRoles",
+     "licenseDetails[].skuPartNumber",
+     "primaryMailbox.recipientTypeDetails"
+    ],
+    "filters": [
+     {
+      "field": "userType",
+      "operator": "eq",
+      "value": "Member"
+     },
+     {
+      "field": "accountEnabled",
+      "operator": "eq",
+      "value": true
+     }
+    ]
+   },
+   {
+    "id": "high_impact_users",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 88,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "jobTitle",
+     "userType",
+     "accountEnabled",
+     "system.impactSources[].type",
+     "directoryRoles[].displayName",
+     "directoryRoles[].isPrivileged",
+     "lastSuccessfulSignInDateTime"
+    ],
+    "filters": [
+     {
+      "field": "system.impactSources[].type",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "disabled_with_roles",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 99,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "directoryRoles[].displayName",
+     "eligiblePimRoles",
+     "lastSignInDateTime",
+     "lastSuccessfulSignInDateTime"
+    ],
+    "filters": [
+     {
+      "field": "accountEnabled",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "directoryRoles[].displayName",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "disabled_with_eligible_roles",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 91,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "directoryRoles[].displayName",
+     "eligiblePimRoles",
+     "lastSignInDateTime",
+     "lastSuccessfulSignInDateTime"
+    ],
+    "filters": [
+     {
+      "field": "accountEnabled",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "eligiblePimRoles[].roleDisplayName",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "disabled_with_licenses",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 98,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "licenseDetails[].skuPartNumber",
+     "lastSignInDateTime",
+     "lastSuccessfulSignInDateTime"
+    ],
+    "filters": [
+     {
+      "field": "accountEnabled",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "licenseDetails[].skuPartNumber",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "subscribed_skus",
+    "tool": "query",
+    "entity": "organizations",
+    "maxResults": 83,
+    "fields": [
+     "subscribedSkus[].skuId",
+     "subscribedSkus[].skuPartNumber",
+     "subscribedSkus[].capabilityStatus",
+     "subscribedSkus[].consumedUnits",
+     "subscribedSkus[].prepaidUnits.enabled",
+     "subscribedSkus[].prepaidUnits.warning",
+     "subscribedSkus[].prepaidUnits.suspended",
+     "subscribedSkus[].prepaidUnits.lockedOut"
+    ]
+   },
+   {
+    "id": "guests",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 97,
+    "fields": [
+     "id",
+     "displayName",
+     "mail",
+     "userPrincipalName",
+     "accountEnabled",
+     "createdDateTime",
+     "lastSignInDateTime",
+     "lastSuccessfulSignInDateTime",
+     "externalUserState"
+    ],
+    "filters": [
+     {
+      "field": "userType",
+      "operator": "eq",
+      "value": "Guest"
+     }
+    ]
+   },
+   {
+    "id": "groups",
+    "tool": "query",
+    "entity": "groups",
+    "maxResults": 96,
+    "fields": [
+     "id",
+     "displayName",
+     "groupType.name",
+     "groupType.isDynamic",
+     "isAssignableToRole",
+     "createdDateTime",
+     "expirationDateTime",
+     "summary.membersCount",
+     "summary.ownersCount",
+     "summary.guestsCount",
+     "directoryRoles[].displayName",
+     "directoryRoles[].isPrivileged"
+    ]
+   },
+   {
+    "id": "user_group_findings_open",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 93,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "in",
+      "value": [
+       "Identity",
+       "Group"
+      ]
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "user_group_findings_accepted",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 92,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "in",
+      "value": [
+       "Identity",
+       "Group"
+      ]
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "eq",
+      "value": "Accepted"
+     }
+    ]
+   },
+   {
+    "id": "definitions",
+    "tool": "list_finding_definitions",
+    "detail": true
+   },
+   {
+    "id": "secure_score",
+    "tool": "query",
+    "entity": "secure-score",
+    "maxResults": 94
+   },
+   {
+    "id": "secure_score_controls",
+    "tool": "query",
+    "entity": "secure-scores",
+    "maxResults": 95,
+    "fields": [
+     "id",
+     "title",
+     "service",
+     "maxScore",
+     "controlScore.score",
+     "rank"
+    ],
+    "filters": [
+     {
+      "field": "controlCategory",
+      "operator": "eq",
+      "value": "Identity"
+     },
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "controlScore.scoreInPercentage",
+      "operator": "lt",
+      "value": 100
+     }
+    ]
+   },
+   {
+    "id": "policies",
+    "tool": "query",
+    "entity": "conditional-access-policies",
+    "maxResults": 87,
+    "fields": [
+     "id",
+     "displayName",
+     "state",
+     "createdDateTime",
+     "modifiedDateTime",
+     "templateId",
+     "conditions.users.includeUsers[]",
+     "conditions.users.excludeUsers[]",
+     "conditions.users.includeGroups[]",
+     "conditions.users.excludeGroups[]",
+     "conditions.users.includeRoles[]",
+     "conditions.users.excludeRoles[]",
+     "conditions.users.includeGuestsOrExternalUsers.guestOrExternalUserTypes",
+     "conditions.users.includeGuestsOrExternalUsers.externalTenants.membershipKind",
+     "conditions.users.excludeGuestsOrExternalUsers.guestOrExternalUserTypes",
+     "conditions.users.excludeGuestsOrExternalUsers.externalTenants.membershipKind",
+     "conditions.applications.includeApplications[]",
+     "conditions.applications.excludeApplications[]",
+     "conditions.applications.includeUserActions[]",
+     "conditions.applications.includeAuthenticationContextClassReferences[]",
+     "conditions.applications.applicationFilter.mode",
+     "conditions.applications.applicationFilter.rule",
+     "conditions.clientApplications.includeServicePrincipals[]",
+     "conditions.clientApplications.excludeServicePrincipals[]",
+     "conditions.clientApplications.servicePrincipalFilter.mode",
+     "conditions.clientApplications.servicePrincipalFilter.rule",
+     "conditions.clientAppTypes",
+     "conditions.platforms.includePlatforms[]",
+     "conditions.platforms.excludePlatforms[]",
+     "conditions.locations.includeLocations[]",
+     "conditions.locations.excludeLocations[]",
+     "conditions.signInRiskLevels",
+     "conditions.userRiskLevels",
+     "conditions.servicePrincipalRiskLevels",
+     "conditions.insiderRiskLevels",
+     "conditions.devices.deviceFilter.mode",
+     "conditions.devices.deviceFilter.rule",
+     "conditions.authenticationFlows.transferMethods",
+     "grantControls.operator",
+     "grantControls.builtInControls",
+     "grantControls.customAuthenticationFactors",
+     "grantControls.termsOfUse",
+     "grantControls.authenticationStrength.id",
+     "grantControls.authenticationStrength.displayName",
+     "grantControls.authenticationStrength.policyType",
+     "grantControls.authenticationStrength.requirementsSatisfied",
+     "grantControls.authenticationStrength.allowedCombinations",
+     "sessionControls.signInFrequency.isEnabled",
+     "sessionControls.signInFrequency.frequencyInterval",
+     "sessionControls.signInFrequency.type",
+     "sessionControls.signInFrequency.value",
+     "sessionControls.signInFrequency.authenticationType",
+     "sessionControls.persistentBrowser.isEnabled",
+     "sessionControls.persistentBrowser.mode",
+     "sessionControls.cloudAppSecurity.isEnabled",
+     "sessionControls.cloudAppSecurity.cloudAppSecurityType",
+     "sessionControls.disableResilienceDefaults"
+    ]
+   },
+   {
+    "id": "members_excluded_from_mfa",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 86,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "mfaPolicyCoverage.policyIds",
+     "caPolicies[].id",
+     "caPolicies[].via.reason",
+     "caPolicies[].via.displayName",
+     "caPolicies[].via.id"
+    ],
+    "filters": [
+     {
+      "field": "userType",
+      "operator": "eq",
+      "value": "Member"
+     },
+     {
+      "field": "accountEnabled",
+      "operator": "eq",
+      "value": true
+     },
+     {
+      "field": "mfaPolicyCoverage.tier",
+      "operator": "eq",
+      "value": "notCoveredExcluded"
+     },
+     {
+      "field": "caPolicies[].result",
+      "operator": "eq",
+      "value": "excluded",
+      "scope": "mfa"
+     },
+     {
+      "field": "caPolicies[].grantsMfa",
+      "operator": "eq",
+      "value": true,
+      "scope": "mfa"
+     },
+     {
+      "field": "caPolicies[].state",
+      "operator": "eq",
+      "value": "enabled",
+      "scope": "mfa"
+     }
+    ]
+   },
+   {
+    "id": "directory_roles",
+    "tool": "query",
+    "entity": "directory-roles",
+    "maxResults": 85,
+    "fields": [
+     "id",
+     "displayName",
+     "roleTemplateId"
+    ]
+   },
+   {
+    "id": "service_principals",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 84,
+    "fields": [
+     "id",
+     "appId",
+     "displayName"
+    ]
+   }
+  ]
+ }
+}

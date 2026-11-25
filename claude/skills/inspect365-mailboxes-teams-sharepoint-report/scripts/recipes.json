@@ -1,0 +1,264 @@
+{
+ "collaboration_deep_dive": {
+  "recipe": "collaboration-deep-dive",
+  "version": "0.2.0",
+  "params": [
+   "tenantId",
+   "asOf"
+  ],
+  "note": "Every value in the report comes from one of these calls, run exactly as written with the params filled in. maxBuckets and maxResults values are unique per call so the echo in each response identifies it. Lists hold up to 100 rows a page; a longer list is fetched page by page with pageToken and saved as one input, and the build fails if a list is short. Every call reads one collection run: nothing needs history from earlier runs.",
+  "queries": [
+   {
+    "id": "findings_open",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 61,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "in",
+      "value": [
+       "Mailbox",
+       "Team",
+       "SharePoint"
+      ]
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "findings_accepted",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 62,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "in",
+      "value": [
+       "Mailbox",
+       "Team",
+       "SharePoint"
+      ]
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "eq",
+      "value": "Accepted"
+     }
+    ]
+   },
+   {
+    "id": "definitions",
+    "tool": "list_finding_definitions",
+    "detail": true
+   },
+   {
+    "id": "secure_score",
+    "tool": "query",
+    "entity": "secure-score",
+    "maxResults": 95
+   },
+   {
+    "id": "secure_score_controls",
+    "tool": "query",
+    "entity": "secure-scores",
+    "maxResults": 96,
+    "fields": [
+     "id",
+     "title",
+     "service",
+     "controlCategory",
+     "maxScore",
+     "controlScore.score",
+     "controlScore.scoreInPercentage",
+     "rank"
+    ],
+    "filters": [
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     },
+     {
+      "field": "controlScore.scoreInPercentage",
+      "operator": "lt",
+      "value": 100
+     },
+     {
+      "field": "service",
+      "operator": "in",
+      "value": [
+       "EXO",
+       "MDO",
+       "MS Teams",
+       "SPO",
+       "MIP"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "mailboxes_by_type",
+    "tool": "aggregate",
+    "entity": "mailboxes",
+    "groupBy": "recipientTypeDetails",
+    "maxBuckets": 21
+   },
+   {
+    "id": "mailboxes_external_forwarding",
+    "tool": "aggregate",
+    "entity": "mailboxes",
+    "groupBy": "forwardingExternalDomain",
+    "maxBuckets": 22,
+    "filters": [
+     {
+      "field": "forwardsToExternalDomain",
+      "operator": "eq",
+      "value": true
+     },
+     {
+      "field": "forwardingSmtpAddress",
+      "operator": "ne",
+      "value": ""
+     }
+    ]
+   },
+   {
+    "id": "mailboxes",
+    "tool": "query",
+    "entity": "mailboxes",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "displayName",
+     "primarySmtpAddress",
+     "recipientTypeDetails",
+     "whenMailboxCreated",
+     "user.id",
+     "user.accountEnabled",
+     "user.isLicensed",
+     "mailboxStatistics.lastInteractionTime",
+     "mailboxStatistics.totalItemSizeGB",
+     "prohibitSendReceiveQuotaGB",
+     "usageRatio",
+     "forwardingSmtpAddress",
+     "forwardingAddress",
+     "forwardsToExternalDomain",
+     "forwardingExternalDomain",
+     "deliverToMailboxAndForward",
+     "grantSendOnBehalfTo",
+     "mailboxPermissions[].user",
+     "mailboxPermissions[].accessRights",
+     "mailboxPermissions[].isInherited",
+     "mailboxPermissions[].deny"
+    ]
+   },
+   {
+    "id": "users_high_impact",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 94,
+    "fields": [
+     "id",
+     "displayName",
+     "userPrincipalName",
+     "accountEnabled",
+     "system.impactSources[].type",
+     "teams[].id",
+     "teams[].isOwner"
+    ],
+    "filters": [
+     {
+      "field": "system.impactSources[].type",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "teams",
+    "tool": "query",
+    "entity": "teams",
+    "maxResults": 99,
+    "fields": [
+     "id",
+     "displayName",
+     "visibility",
+     "isArchived",
+     "lastActivityDate",
+     "entityActivity.lastActivityDate",
+     "activeChannels",
+     "summary.ownersCount",
+     "summary.membersCount",
+     "summary.guestsCount",
+     "channels[].id",
+     "channels[].membershipType"
+    ]
+   },
+   {
+    "id": "sites",
+    "tool": "query",
+    "entity": "sharepoint-sites",
+    "maxResults": 98,
+    "fields": [
+     "id",
+     "displayName",
+     "webUrl",
+     "entraGroup.id",
+     "entraGroup.isTeamsConnected",
+     "usageReport.rootWebTemplate",
+     "usageReport.reportRefreshDate",
+     "lastActivityDate",
+     "isInactive",
+     "fileCount",
+     "totalStorageUsedBytes",
+     "owners[].id",
+     "owners[].ownerType",
+     "owners[].accountEnabled",
+     "owners[].isDeleted",
+     "siteCollection.archivalDetails.archiveStatus"
+    ],
+    "filters": [
+     {
+      "field": "isPersonalSite",
+      "operator": "eq",
+      "value": false
+     }
+    ]
+   },
+   {
+    "id": "onedrives",
+    "tool": "query",
+    "entity": "sharepoint-sites",
+    "maxResults": 97,
+    "fields": [
+     "id",
+     "displayName",
+     "totalStorageUsedBytes",
+     "owners[].id",
+     "owners[].userPrincipalName",
+     "owners[].accountEnabled",
+     "owners[].isDeleted",
+     "drives[].lastModifiedDateTime",
+     "siteCollection.archivalDetails.archiveStatus"
+    ],
+    "filters": [
+     {
+      "field": "isPersonalSite",
+      "operator": "eq",
+      "value": true
+     }
+    ]
+   }
+  ]
+ }
+}

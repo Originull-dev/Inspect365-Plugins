@@ -1,0 +1,319 @@
+{
+ "entra_apps_deep_dive": {
+  "recipe": "entra-apps-deep-dive",
+  "version": "0.2.0",
+  "params": [
+   "tenantId",
+   "asOf"
+  ],
+  "note": "Every value in the report comes from one of these calls, run exactly as written with the params filled in. Lists are read at most 100 rows a page and every page is saved; the build fails if a list was cut short. Microsoft-published: appOwnerOrganizationId is one of the seven Microsoft tenant ids in references/app-classification-convention.md; the grammar has no notIn, so the lists AND seven ne filters, which keep apps with no appOwnerOrganizationId. Application permissions come from each API's appRoleAssignedTo, because an app's own appRoleAssignments list stops at 20 (I365-562) and its stored permissionValue labels are unreliable. Secure Score controls in scope: App Governance (AppG) and Defender for Cloud Apps (MCAS), plus the Entra ID controls IntegratedApps, aad_admin_consent_workflow and aad_third_party_apps. Single ingest: every date is one Microsoft returns on the object (createdDateTime on the service principal and on each app role assignment, credential start and end dates) or in its sign-in activity report (lastSignInDateTime). lastConsentDateTime is not read: the Collector takes it from audit log consent events in the 30 days before a run, and Entra keeps 7 days of audit log without P1 or P2.",
+  "queries": [
+   {
+    "id": "sp_by_type",
+    "tool": "aggregate",
+    "entity": "service-principals",
+    "groupBy": "servicePrincipalType",
+    "maxBuckets": 71
+   },
+   {
+    "id": "sp_microsoft_by_tenant",
+    "tool": "aggregate",
+    "entity": "service-principals",
+    "groupBy": "appOwnerOrganizationId",
+    "maxBuckets": 72,
+    "filters": [
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "in",
+      "value": [
+       "f8cdef31-a31e-4b4a-93e4-5f571e91255a",
+       "72f988bf-86f1-41af-91ab-2d7cd011db47",
+       "cdc5aeea-15c5-4db6-b079-fcadd2505dc2",
+       "33e01921-4d64-4f8c-a055-5bdaffd5e33d",
+       "0d933fb8-3f65-4722-9430-08d60fc88af4",
+       "975f013f-7f24-47e8-a7d3-abc4752bf346",
+       "47df5bb7-e6bc-4256-afb0-dd8c8e3c1ce8"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "microsoft_with_roles",
+    "tool": "aggregate",
+    "entity": "service-principals",
+    "groupBy": "directoryRoles[].displayName",
+    "maxBuckets": 73,
+    "filters": [
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "in",
+      "value": [
+       "f8cdef31-a31e-4b4a-93e4-5f571e91255a",
+       "72f988bf-86f1-41af-91ab-2d7cd011db47",
+       "cdc5aeea-15c5-4db6-b079-fcadd2505dc2",
+       "33e01921-4d64-4f8c-a055-5bdaffd5e33d",
+       "0d933fb8-3f65-4722-9430-08d60fc88af4",
+       "975f013f-7f24-47e8-a7d3-abc4752bf346",
+       "47df5bb7-e6bc-4256-afb0-dd8c8e3c1ce8"
+      ]
+     },
+     {
+      "field": "directoryRoles[].displayName",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "apps",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 100,
+    "fields": [
+     "id",
+     "displayName",
+     "appOwnerOrganizationId",
+     "servicePrincipalType",
+     "verifiedPublisher.displayName",
+     "accountEnabled",
+     "disabledByMicrosoftStatus",
+     "createdDateTime",
+     "lastSignInDateTime",
+     "lastApplicationAuthenticationClientSignInDateTime",
+     "directoryRoles[].displayName",
+     "directoryRoles[].isPrivileged",
+     "clientSecretStatus.status",
+     "clientSecretStatus.expiresOn",
+     "clientCertificateStatus.status",
+     "clientCertificateStatus.expiresOn",
+     "samlCredentialStatus.status",
+     "samlCredentialStatus.expiresOn",
+     "passwordCredentials[].displayName",
+     "passwordCredentials[].startDateTime",
+     "passwordCredentials[].endDateTime",
+     "keyCredentials[].displayName",
+     "keyCredentials[].startDateTime",
+     "keyCredentials[].endDateTime",
+     "appRegistration.passwordCredentials[].displayName",
+     "appRegistration.passwordCredentials[].startDateTime",
+     "appRegistration.passwordCredentials[].endDateTime",
+     "appRegistration.keyCredentials[].displayName",
+     "appRegistration.keyCredentials[].startDateTime",
+     "appRegistration.keyCredentials[].endDateTime"
+    ],
+    "filters": [
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "f8cdef31-a31e-4b4a-93e4-5f571e91255a"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "cdc5aeea-15c5-4db6-b079-fcadd2505dc2"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "33e01921-4d64-4f8c-a055-5bdaffd5e33d"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "0d933fb8-3f65-4722-9430-08d60fc88af4"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "975f013f-7f24-47e8-a7d3-abc4752bf346"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "47df5bb7-e6bc-4256-afb0-dd8c8e3c1ce8"
+     }
+    ]
+   },
+   {
+    "id": "api_assignments",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 96,
+    "fields": [
+     "id",
+     "displayName",
+     "appRoleAssignedTo[].principalId",
+     "appRoleAssignedTo[].principalType",
+     "appRoleAssignedTo[].appRoleId",
+     "appRoleAssignedTo[].createdDateTime",
+     "appRoles[].id",
+     "appRoles[].value",
+     "appRoles[].displayName"
+    ],
+    "filters": [
+     {
+      "field": "appRoleAssignedTo[].principalType",
+      "operator": "eq",
+      "value": "ServicePrincipal"
+     }
+    ]
+   },
+   {
+    "id": "delegated_grants",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 98,
+    "fields": [
+     "id",
+     "displayName",
+     "oauth2PermissionGrants[].resourceDisplayName",
+     "oauth2PermissionGrants[].permissionValue",
+     "oauth2PermissionGrants[].consentType",
+     "oauth2PermissionGrants[].principalId"
+    ],
+    "filters": [
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "f8cdef31-a31e-4b4a-93e4-5f571e91255a"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "cdc5aeea-15c5-4db6-b079-fcadd2505dc2"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "33e01921-4d64-4f8c-a055-5bdaffd5e33d"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "0d933fb8-3f65-4722-9430-08d60fc88af4"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "975f013f-7f24-47e8-a7d3-abc4752bf346"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "47df5bb7-e6bc-4256-afb0-dd8c8e3c1ce8"
+     },
+     {
+      "field": "oauth2PermissionGrants[].permissionValue",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "users",
+    "tool": "query",
+    "entity": "users",
+    "maxResults": 97,
+    "fields": [
+     "id",
+     "displayName",
+     "userType"
+    ]
+   },
+   {
+    "id": "app_findings_open",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 74,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "eq",
+      "value": "ServicePrincipal"
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "in",
+      "value": [
+       "Needs Review",
+       "Flagged"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "app_findings_accepted",
+    "tool": "aggregate",
+    "entity": "findings",
+    "groupBy": "findingId",
+    "maxBuckets": 75,
+    "filters": [
+     {
+      "field": "type",
+      "operator": "eq",
+      "value": "ServicePrincipal"
+     },
+     {
+      "field": "latestStatusName",
+      "operator": "eq",
+      "value": "Accepted"
+     }
+    ]
+   },
+   {
+    "id": "definitions",
+    "tool": "list_finding_definitions",
+    "detail": true
+   },
+   {
+    "id": "secure_score",
+    "tool": "query",
+    "entity": "secure-score",
+    "maxResults": 76
+   },
+   {
+    "id": "secure_score_controls",
+    "tool": "query",
+    "entity": "secure-scores",
+    "maxResults": 77,
+    "fields": [
+     "id",
+     "title",
+     "service",
+     "maxScore",
+     "controlScore.score",
+     "rank"
+    ],
+    "filters": [
+     {
+      "field": "id",
+      "operator": "in",
+      "value": [
+       "AppG_regulate_access_to_sensitive_data",
+       "AppG_unusual_activity_with_priority_account",
+       "mcas_mda_enabled",
+       "McasFirewallLogUpload",
+       "IntegratedApps",
+       "aad_admin_consent_workflow",
+       "aad_third_party_apps"
+      ]
+     },
+     {
+      "field": "deprecated",
+      "operator": "eq",
+      "value": false
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,146 @@
+{
+ "app_access": {
+  "recipe": "app-access",
+  "version": "0.2.0",
+  "params": [
+   "tenantId",
+   "asOf"
+  ],
+  "note": "Every value in the report comes from one of these calls, run exactly as written with the params filled in. api_assignments, delegated_grants and role_apps are the same calls as the mailbox access recipe's, apps_by_category the assessment report's, so a run on the same day can reuse their saved responses. maxResults and maxBuckets values are unique per call.",
+  "queries": [
+   {
+    "id": "api_assignments",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 96,
+    "fields": [
+     "id",
+     "displayName",
+     "appRoleAssignedTo[].principalId",
+     "appRoleAssignedTo[].principalDisplayName",
+     "appRoleAssignedTo[].principalType",
+     "appRoleAssignedTo[].appRoleId",
+     "appRoleAssignedTo[].createdDateTime",
+     "appRoles[].id",
+     "appRoles[].value",
+     "appRoles[].displayName"
+    ],
+    "filters": [
+     {
+      "field": "appRoleAssignedTo[].principalType",
+      "operator": "eq",
+      "value": "ServicePrincipal"
+     }
+    ]
+   },
+   {
+    "id": "delegated_grants",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 98,
+    "fields": [
+     "id",
+     "displayName",
+     "appOwnerOrganizationId",
+     "accountEnabled",
+     "verifiedPublisher.displayName",
+     "lastSignInDateTime",
+     "oauth2PermissionGrants[].resourceDisplayName",
+     "oauth2PermissionGrants[].permissionValue",
+     "oauth2PermissionGrants[].consentType",
+     "oauth2PermissionGrants[].principalId"
+    ],
+    "filters": [
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "f8cdef31-a31e-4b4a-93e4-5f571e91255a"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "cdc5aeea-15c5-4db6-b079-fcadd2505dc2"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "33e01921-4d64-4f8c-a055-5bdaffd5e33d"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "0d933fb8-3f65-4722-9430-08d60fc88af4"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "975f013f-7f24-47e8-a7d3-abc4752bf346"
+     },
+     {
+      "field": "appOwnerOrganizationId",
+      "operator": "ne",
+      "value": "47df5bb7-e6bc-4256-afb0-dd8c8e3c1ce8"
+     },
+     {
+      "field": "oauth2PermissionGrants[].permissionValue",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "client_apps",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 89,
+    "fields": [
+     "id",
+     "displayName",
+     "appOwnerOrganizationId",
+     "accountEnabled",
+     "verifiedPublisher.displayName",
+     "lastSignInDateTime",
+     "servicePrincipalCategory"
+    ],
+    "filters": [
+     {
+      "field": "appRoleAssignments[].resourceDisplayName",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "role_apps",
+    "tool": "query",
+    "entity": "service-principals",
+    "maxResults": 95,
+    "fields": [
+     "id",
+     "displayName",
+     "appOwnerOrganizationId",
+     "accountEnabled",
+     "verifiedPublisher.displayName",
+     "lastSignInDateTime",
+     "directoryRoles[].displayName"
+    ],
+    "filters": [
+     {
+      "field": "directoryRoles[].displayName",
+      "operator": "isNotNull"
+     }
+    ]
+   },
+   {
+    "id": "apps_by_category",
+    "tool": "aggregate",
+    "entity": "service-principals",
+    "groupBy": "servicePrincipalCategory",
+    "maxBuckets": 58
+   }
+  ]
+ }
+}

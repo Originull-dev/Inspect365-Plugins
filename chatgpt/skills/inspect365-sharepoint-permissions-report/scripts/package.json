@@ -1,0 +1,15 @@
+{
+ "version": "0.8.6",
+ "environment": "us-production",
+ "built": "2026-11-25",
+ "files": {
+  "SKILL.md": "921cf0671a2beededdf5d847b1c12a347c9e57a9abfaa38f54638eae2b81f2a8",
+  "scripts/access.py": "bb7966f02c5e2b78e0a3273f7b458bced8a1f19eef09e47a71c344d6b0ce12d7",
+  "scripts/explorer.html": "4de817daaea8426fb16ab6b2a60ce0956272371a0d0e0b986fa2a76c29a77600",
+  "scripts/explorer.py": "c0cb32c437b120693858a173b3d895f9526384825434f9b61636bbced9a2504d",
+  "scripts/recipes.json": "6d0b0d9714a0e03ce67f7d0f547ab23528dada4b0dc0a3b8e252a05e6b3201e0",
+  "scripts/save_input.py": "f37e4d8359ea58813125c10f9a9a43d6bd40fa0c73ed2c5b49d1ded634436145",
+  "scripts/sharepoint_permissions.py": "2cce324772c6e6a2f34e10236295b507a74c7094d7672676e1f4975bec90856f",
+  "scripts/sharepoint_permissions_build.py": "03e569f90a8df043a9a9ba1598b8ec655d2c131e6b46ee3ecb568ca35b44591f"
+ }
+}

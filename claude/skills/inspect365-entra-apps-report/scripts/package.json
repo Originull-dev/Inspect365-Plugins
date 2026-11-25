@@ -1,0 +1,17 @@
+{
+ "version": "0.8.6",
+ "environment": "us-production",
+ "built": "2026-11-25",
+ "files": {
+  "SKILL.md": "379479011c2c217cc1ecbf264756c2d39e99a6fa24a2709ff4290bed46a72bc4",
+  "scripts/app_reach.py": "9b45dcde39633159661255079efd78ca1c32250193bae29e4570c20be46512a4",
+  "scripts/check_facts.py": "383a78e9f1521f8784e1685ef3b5f47d547518e0e62ca6368167a4e4ced5c591",
+  "scripts/common.py": "62e602d7e8358c3ac492d1649ff995e0d2f4037b4cb49f9b9610137fc59b2f71",
+  "scripts/entra_apps_deep_dive_build.py": "4d22e1399cb0f4c7318166b10b8c06d159e8d8b3a6efef82e9f56cb76b7d9469",
+  "scripts/recipes.json": "674e89c9af3e50a6abe11bfb2cc3e70d4e5fb728e69a5ace77bef339cb18d505",
+  "scripts/render_report.py": "6d604e1f695acfa9fd15bc88c8a8b1b2e0608dfca65d78d36ed24d1f9c2fbcb8",
+  "scripts/report-template.html": "34f287f016d04b898e2e8707af5eba8fb18ab37ea185d033ad77d7a773858999",
+  "scripts/report.py": "747184ba1f7549f14fe56fad326a4ab04f3207fc4e999b2b96cc8347f7ed1039",
+  "scripts/save_input.py": "f37e4d8359ea58813125c10f9a9a43d6bd40fa0c73ed2c5b49d1ded634436145"
+ }
+}
